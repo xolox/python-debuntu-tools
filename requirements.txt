@@ -1,0 +1,8 @@
+# This is a pip requirement file that defines the installation requirements of
+# debuntu-tools. It's read by the setup.py script to avoid duplication.
+
+coloredlogs >= 5.0
+deb-pkg-tools >= 1.36
+executor >= 11.0
+humanfriendly >= 1.44.7
+property-manager >= 2.1

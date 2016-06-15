@@ -1,0 +1,33 @@
+<pre><span style="color: rgb(78, 154, 6);">2016-06-15 18:22:57</span> <span style="font-weight: bold; color: black;">VERBOSE</span> <span style="color: rgb(78, 154, 6);">Sanity checking meta packages on remote system (package-sandbox) ..</span>
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:58</span> <span style="font-weight: bold; color: black;">INFO</span> Found 2&nbsp;installed Linux kernel image meta packages:
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:58</span> <span style="font-weight: bold; color: black;">INFO</span> &nbsp;- linux-image-generic-lts-wily (4.2.0.38.31)
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:58</span> <span style="font-weight: bold; color: black;">INFO</span> &nbsp;- linux-image-generic-lts-xenial (4.4.0.24.14)
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:58</span> <span style="font-weight: bold; color: black;">WARNING</span> <span style="color: rgb(196, 160, 0);">You have more than one Linux kernel image meta package installed (linux-image-generic-lts-wily and linux-image-generic-lts-xenial) which means automatic package removal can be unreliable!</span>
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:58</span> <span style="font-weight: bold; color: black;">VERBOSE</span> <span style="color: rgb(78, 154, 6);">It's probably best to stick to one Linux kernel image meta package, preferably the one that matches the newest kernel :-)</span>
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:58</span> <span style="font-weight: bold; color: black;">INFO</span> Found 1&nbsp;installed Linux kernel header meta package:
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:58</span> <span style="font-weight: bold; color: black;">INFO</span> &nbsp;- linux-headers-generic-lts-xenial (4.4.0.24.14)
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:58</span> <span style="font-weight: bold; color: black;">VERBOSE</span> <span style="color: rgb(78, 154, 6);">Checking for removable packages on remote system (package-sandbox) ..</span>
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:58</span> <span style="font-weight: bold; color: black;">INFO</span> Found 9&nbsp;installed Linux kernel image packages:
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:59</span> <span style="font-weight: bold; color: black;">INFO</span> &nbsp;- linux-image-3.13.0-63-generic and linux-image-extra-3.13.0-63-generic (<span style="color: rgb(78, 154, 6);">removable</span>)
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:59</span> <span style="font-weight: bold; color: black;">INFO</span> &nbsp;- linux-image-3.13.0-73-generic (<span style="color: rgb(78, 154, 6);">removable</span>)
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:59</span> <span style="font-weight: bold; color: black;">INFO</span> &nbsp;- linux-image-4.2.0-38-generic and linux-image-extra-4.2.0-38-generic (<span style="color: rgb(78, 154, 6);">removable</span>)
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:59</span> <span style="font-weight: bold; color: black;">INFO</span> &nbsp;- linux-image-4.4.0-21-generic and linux-image-4.4.0-21-lowlatency (<span style="color: blue;">one of 2&nbsp;newest kernels</span>)
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:59</span> <span style="font-weight: bold; color: black;">INFO</span> &nbsp;- linux-image-4.4.0-24-generic and linux-image-extra-4.4.0-24-generic (<span style="color: blue;">the active kernel</span>)
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:59</span> <span style="font-weight: bold; color: black;">INFO</span> Found 5&nbsp;installed Linux kernel header packages:
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:59</span> <span style="font-weight: bold; color: black;">INFO</span> &nbsp;- linux-headers-3.13.0-63 and linux-headers-3.13.0-63-generic (<span style="color: rgb(78, 154, 6);">removable</span>)
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:59</span> <span style="font-weight: bold; color: black;">INFO</span> &nbsp;- linux-headers-3.13.0-88 (<span style="color: rgb(78, 154, 6);">removable</span>)
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:59</span> <span style="font-weight: bold; color: black;">INFO</span> &nbsp;- linux-headers-4.4.0-24 and linux-headers-4.4.0-24-generic (<span style="color: blue;">the active kernel</span>)
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:59</span> <span style="font-weight: bold; color: black;">INFO</span> Found 8&nbsp;Linux kernel packages that can be removed.
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:22:59</span> <span style="font-weight: bold; color: black;">VERBOSE</span> <span style="color: rgb(78, 154, 6);">Command to remove packages: apt-get remove --purge --dry-run --quiet --quiet linux-headers-3.13.0-88 linux-headers-3.13.0-63-generic linux-image-extra-3.13.0-63-generic linux-headers-3.13.0-63 linux-image-3.13.0-63-generic linux-image-3.13.0-73-generic linux-image-extra-4.2.0-38-generic linux-image-4.2.0-38-generic</span>
+2016-06-15 18:22:59</span> <span style="font-weight: bold; color: black;">INFO</span> Removing 8&nbsp;packages on remote system (package-sandbox) ..
+Pseudo-terminal will not be allocated because stdin is not a&nbsp;terminal.
+Purg linux-headers-3.13.0-63-generic [3.13.0-63.103]
+Purg linux-headers-3.13.0-63 [3.13.0-63.103]
+Purg linux-headers-3.13.0-88 [3.13.0-88.135]
+Purg linux-image-extra-3.13.0-63-generic [3.13.0-63.103]
+Purg linux-image-3.13.0-63-generic [3.13.0-63.103]
+Purg linux-image-3.13.0-73-generic [3.13.0-73.116]
+Purg linux-image-generic-lts-wily [4.2.0.38.31]
+Purg linux-image-extra-4.2.0-38-generic [4.2.0-38.45~14.04.1]
+Purg linux-image-4.2.0-38-generic [4.2.0-38.45~14.04.1]
+<span style="color: rgb(78, 154, 6);">2016-06-15 18:23:00</span> <span style="font-weight: bold; color: black;">INFO</span> Done! (took 2.56 seconds)</pre>
