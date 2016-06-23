@@ -70,6 +70,12 @@ from humanfriendly.terminal import ansi_wrap, usage, warning
 from property_manager import PropertyManager, cached_property, key_property, required_property
 from verboselogs import VerboseLogger
 
+REBOOT_REQUIRED_FILE = '/var/run/reboot-required'
+"""The absolute pathname of the file that exists when a system reboot is required (a string)."""
+
+REBOOT_REQUIRED_PACKAGES_FILE = '/var/run/reboot-required.pkgs'
+"""The absolute pathname of a file with details about why a system reboot is required (a string)."""
+
 # Initialize a logger for this module.
 logger = VerboseLogger(__name__)
 
@@ -262,6 +268,11 @@ class KernelPackageManager(PropertyManager):
         return self.removable_header_packages + self.removable_kernel_packages
 
     @cached_property
+    def running_newest_kernel(self):
+        """:data:`True` if the newest kernel is currently active, :data:`False` otherwise."""
+        return any(package.name == self.active_kernel_package for package in self.installed_package_groups[-1])
+
+    @cached_property
     def cleanup_command(self):
         """A list of strings with the ``apt-get`` command to remove old packages."""
         command_line = []
@@ -345,6 +356,9 @@ class KernelPackageManager(PropertyManager):
         :param options: Any keyword arguments are passed on to the
                         :func:`~executor.contexts.AbstractContext.execute()`
                         method of the :class:`context` object.
+        :returns: :data:`True` if a system reboot is required (to switch to the
+                  newest installed kernel image or because security updates
+                  have been installed), :data:`False` otherwise.
         :raises: :exc:`CleanupError` when multiple Linux kernel meta packages
                  are installed and :attr:`force` is :data:`False`.
         """
@@ -358,9 +372,44 @@ class KernelPackageManager(PropertyManager):
                     kernel meta packages are installed! You can use the -f,
                     --force option to override this sanity check.
                 """, system=self.context))
+            # Check if the packaging system has signaled that a system reboot
+            # is required before we run the `apt-get remove' command.
+            reboot_required_before = self.context.exists(REBOOT_REQUIRED_FILE)
+            # Get the set of installed packages before we run `apt-get remove'.
+            installed_packages_before = set(p for p in self.installed_packages.values() if p.status == 'ii')
+            # Actually run the 'apt-get remove' command.
             logger.info("Removing %s on %s ..", pluralize(len(self.removable_packages), "package"), self.context)
             self.context.execute(*self.cleanup_command, sudo=True, **options)
             logger.info("Done! (took %s)", timer)
+            # The `apt-get remove' command invalidates all of our cached data
+            # so we need to refresh our cached properties to avoid stale data.
+            self.clear_cached_properties()
+            # Check if it is safe to remove /var/run/reboot-required.
+            if self.running_newest_kernel and not reboot_required_before:
+                # Get the set of installed packages after running `apt-get remove'.
+                installed_packages_after = set(p for p in self.installed_packages.values() if p.status == 'ii')
+                if installed_packages_after.issubset(installed_packages_before):
+                    # We can remove the signal file(s) iff:
+                    # 1. A system reboot wasn't already required.
+                    # 2. We're already running on the newest kernel.
+                    # 3. We only removed packages but didn't install or upgrade any.
+                    logger.info("System reboot is avoidable! Removing signal file(s) ..")
+                    self.context.execute(
+                        'rm', '--force',
+                        REBOOT_REQUIRED_FILE,
+                        REBOOT_REQUIRED_PACKAGES_FILE,
+                        sudo=True,
+                    )
+        # Inform the operator and caller about whether a reboot is required.
+        if not self.running_newest_kernel:
+            logger.info("System reboot needed (not yet running the newest kernel).")
+            return True
+        elif self.context.exists(REBOOT_REQUIRED_FILE):
+            logger.info("System reboot needed (%s exists).", REBOOT_REQUIRED_FILE)
+            return True
+        else:
+            logger.info("System reboot is not necessary.")
+            return False
 
 
 class MaybeKernelPackage(PropertyManager):
