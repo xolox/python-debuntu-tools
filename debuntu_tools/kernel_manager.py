@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: June 15, 2016
+# Last Change: June 23, 2016
 # URL: https://debuntu-tools.readthedocs.io/
 
 """
@@ -79,9 +79,9 @@ def main():
     # Initialize logging to the terminal and system log.
     coloredlogs.install(syslog=True)
     # Parse the command line arguments.
-    context_opts = dict()
-    collector_opts = dict()
     action = 'render_summary'
+    context_opts = dict()
+    manager_opts = dict()
     try:
         options, arguments = getopt.getopt(sys.argv[1:], 'cfr:vqh', [
             'clean', 'remove',
@@ -92,7 +92,7 @@ def main():
             if option in ('-c', '--clean', '--remove'):
                 action = 'cleanup_packages'
             elif option in ('-f', '--force'):
-                collector_opts['force'] = True
+                manager_opts['force'] = True
             elif option in ('-r', '--remote-host'):
                 context_opts['ssh_alias'] = value
             elif option in ('-v', '--verbose'):
@@ -105,18 +105,18 @@ def main():
             else:
                 raise Exception("Unhandled option!")
         # Any positional arguments are passed to apt-get.
-        collector_opts['apt_options'] = arguments
+        manager_opts['apt_options'] = arguments
     except Exception as e:
         warning("Failed to parse command line arguments! (%s)", e)
         sys.exit(1)
     # Execute the requested action(s).
     context = create_context(**context_opts)
     try:
-        collector = KernelCollector(
+        manager = KernelPackageManager(
             context=context,
-            **collector_opts
+            **manager_opts
         )
-        getattr(collector, action)()
+        getattr(manager, action)()
     except (CleanupError, ExternalCommandFailed) as e:
         logger.error("%s", e)
         sys.exit(1)
@@ -125,7 +125,7 @@ def main():
         sys.exit(1)
 
 
-class KernelCollector(PropertyManager):
+class KernelPackageManager(PropertyManager):
 
     """Python API for automated Linux kernel image package cleanup on Debian based systems."""
 
@@ -452,8 +452,9 @@ class CleanupError(Exception):
     """
     Custom exception to detect known problems.
 
-    Raised by :class:`~KernelCollector` when multiple Linux kernel meta packages
-    are installed but :attr:`~.KernelCollector.force` is :data:`False`.
+    Raised by :class:`~KernelPackageManager` when multiple Linux kernel meta
+    packages are installed but :attr:`~.KernelPackageManager.force` is
+    :data:`False`.
     """
 
 
