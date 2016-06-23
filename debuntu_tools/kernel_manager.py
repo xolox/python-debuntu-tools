@@ -289,8 +289,8 @@ class KernelPackageManager(PropertyManager):
         with AutomaticSpinner(label="Gathering information about %s" % self.context):
             # Report the installed Linux kernel header/image meta package(s).
             meta_package_types = (
-                    (self.installed_image_meta_packages, "image", True),
-                    (self.installed_header_meta_packages, "header", False),
+                (self.installed_image_meta_packages, "image", True),
+                (self.installed_header_meta_packages, "header", False),
             )
             for collection, label, expected in meta_package_types:
                 if collection:
@@ -315,8 +315,8 @@ class KernelPackageManager(PropertyManager):
             # Report the installed Linux kernel header/image package(s).
             logger.verbose("Checking for removable packages on %s ..", self.context)
             package_types = (
-                    (self.installed_kernel_packages, "image", True),
-                    (self.installed_header_packages, "header", False),
+                (self.installed_kernel_packages, "image", True),
+                (self.installed_header_packages, "header", False),
             )
             for collection, label, expected in package_types:
                 if collection:
