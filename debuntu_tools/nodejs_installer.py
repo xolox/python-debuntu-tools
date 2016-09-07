@@ -180,7 +180,7 @@ class NodeInstaller(PropertyManager):
 
     def install(self):
         """
-        Enable one of the NodeSource repositories but don't install the 'nodejs' package just yet.
+        Enable the NodeSource repository and install the ``nodejs`` package.
 
         :raises: :exc:`UnsupportedSystemError` when :func:`validate_system()` fails.
         """
