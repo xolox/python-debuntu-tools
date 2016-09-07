@@ -2,7 +2,7 @@
 #
 # Author: Peter Odding <peter@peterodding.com>
 # Last Change: June 15, 2016
-# URL: https://debuntu-tools.readthedocs.io/
+# URL: https://debuntu-tools.readthedocs.io
 
 """Sphinx documentation configuration for the `debuntu-tools` project."""
 

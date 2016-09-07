@@ -3,8 +3,8 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: June 15, 2016
-# URL: https://debuntu-tools.readthedocs.io/
+# Last Change: September 7, 2016
+# URL: https://debuntu-tools.readthedocs.io
 
 """Setup script for the `debuntu-tools` package."""
 
@@ -58,6 +58,7 @@ setup(name='debuntu-tools',
       packages=find_packages(),
       entry_points=dict(console_scripts=[
           'debuntu-kernel-manager = debuntu_tools.kernel_manager:main',
+          'debuntu-nodejs-installer = debuntu_tools.nodejs_installer:main',
       ]),
       install_requires=get_requirements('requirements.txt'),
       classifiers=[

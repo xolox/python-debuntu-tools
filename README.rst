@@ -3,7 +3,7 @@ debuntu-tools: Debian and Ubuntu system administration tools
 
 The `debuntu-tools` package is my playground for experiments in automating
 system administration tasks on Debian and Ubuntu Linux systems. Right now
-there's just a single command and no test suite, but I intend to keep working
+there's just two programs and no test suite, but I intend to keep working
 on this package in order make it a lot more useful. For usage instructions
 please refer to following sections and the documentation_.
 
@@ -44,23 +44,29 @@ Requirements
   the Python package should automatically pull in those dependencies for you.
 
 - You need to be running a Debian or Ubuntu derived Linux distribution, or at
-  least you need a functional dpkg_ installation. This enables version sorting
-  according to the semantics used by dpkg_, which is quite significant if your
-  goal is to remove *older* kernels but preserve *newer* ones :-).
+  least you need a functional dpkg_ installation. This enables e.g. version
+  sorting according to the semantics used by dpkg_, which is quite significant
+  if your goal is to remove *older* kernels but preserve *newer* ones :-).
 
-- To actually remove packages you need apt-get_ and `sudo` privileges on the
-  relevant system.
+- To actually install and remove packages you need apt-get_ and ``sudo``
+  privileges on the relevant system.
 
 Usage
 -----
 
 There are two ways to use the `debuntu-tools` package:
 
-1. A command line interface which is described below.
-2. A Python API which is documented on `Read the Docs`_.
+1. The command line interfaces which are described below.
+2. The Python API which is documented on `Read the Docs`_.
 
-Command line
-~~~~~~~~~~~~
+The following programs are documented here:
+
+.. contents::
+   :local:
+   :depth: 2
+
+debuntu-kernel-manager
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. A DRY solution to avoid duplication of the `debuntu-kernel-manager --help' text:
 ..
@@ -104,6 +110,52 @@ The debuntu-kernel-manager program is currently in alpha status, which means a f
 
 .. [[[end]]]
 
+debuntu-nodejs-installer
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. A DRY solution to avoid duplication of the `debuntu-nodejs-installer --help' text:
+..
+.. [[[cog
+.. from humanfriendly.usage import inject_usage
+.. inject_usage('debuntu_tools.nodejs_installer')
+.. ]]]
+
+**Usage:** `debuntu-nodejs-installer [OPTIONS]`
+
+Install an up to date Node.js binary distribution on a Debian or Ubuntu system by configuring and using the NodeSource binary package repositories.
+
+Due to the time it takes for new software releases to find their way into the Debian and Ubuntu ecosystems versus the speed with which the Node.js community is currently moving, the system packages that provide Node.js are hopelessly out of date. Fortunately the folks at NodeSource maintain Debian and Ubuntu package repositories that provide up to date Node.js binary distributions.
+
+NodeSource makes installation scripts available and the suggested way to run these is to download and pipe them straight to a shell. That kind of rubs me the wrong way :-) but I've nevertheless had to set up NodeSource installations a dozen times now. One thing led to another and now there is this program.
+
+**Supported options:**
+
+.. csv-table::
+   :header: Option, Description
+   :widths: 30, 70
+
+
+   "``-i``, ``--install``","Configure the system to use one of the NodeSource binary package
+   repositories and install the 'nodejs' package from the repository."
+   "``-V``, ``--version=NODEJS_VERSION``","Set the version of Node.js to be installed. You can find a list of
+   available versions on the following web page:
+   https://github.com/nodesource/distributions/
+   
+   Default: node_4.x"
+   "``-s``, ``--sources-file=FILENAME``","Set the pathname of the 'package resource list' that will be added to the
+   system during configuration of the NodeSource binary package repository.
+   
+   Default: /etc/apt/sources.list.d/nodesource.list"
+   "``-r``, ``--remote-host=ALIAS``","Perform the requested action(s) on a remote host over SSH. The ``ALIAS``
+   argument gives the SSH alias that should be used to connect to the remote
+   host."
+   "``-v``, ``--verbose``",Increase verbosity (can be repeated).
+   "``-q``, ``--quiet``",Decrease verbosity (can be repeated).
+   "``-h``, ``--help``","Show this message and exit.
+   "
+
+.. [[[end]]]
+
 Contact
 -------
 
@@ -121,7 +173,7 @@ This software is licensed under the `MIT license`_.
 
 .. External references:
 .. _apt-get: https://en.wikipedia.org/wiki/apt-get
-.. _documentation: https://debuntu-tools.readthedocs.io/
+.. _documentation: https://debuntu-tools.readthedocs.io
 .. _dpkg: https://en.wikipedia.org/wiki/dpkg
 .. _GitHub: https://github.com/xolox/python-debuntu-tools
 .. _MIT license: http://en.wikipedia.org/wiki/MIT_License

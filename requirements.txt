@@ -1,8 +1,16 @@
-# This is a pip requirement file that defines the installation requirements of
-# debuntu-tools. It's read by the setup.py script to avoid duplication.
+# This is a pip requirement file that defines the installation requirements
+# of debuntu-tools. It's read by the setup.py script to avoid duplication.
 
+apt-mirror-updater >= 0.3.1
 coloredlogs >= 5.0
 deb-pkg-tools >= 1.36
 executor >= 11.0
 humanfriendly >= 1.44.7
 property-manager >= 2.1
+requests >= 2.11.1
+
+# The following requirement is already bundled with requests, however we're
+# interested in the `extra' to enable secure HTTPS connections on Python 2.7
+# without InsecurePlatformWarning or SNIMissingWarning messages.
+
+urllib3[secure]

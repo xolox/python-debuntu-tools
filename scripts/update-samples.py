@@ -4,7 +4,7 @@
 #
 # Author: Peter Odding <peter@peterodding.com>
 # Last Change: June 15, 2016
-# URL: https://debuntu-tools.readthedocs.io/
+# URL: https://debuntu-tools.readthedocs.io
 #
 # This script assumes an Ubuntu 14.04 test host.
 
