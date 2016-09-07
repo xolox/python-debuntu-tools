@@ -20,3 +20,9 @@ the `debuntu-tools` package.
 
 .. automodule:: debuntu_tools.kernel_manager
    :members:
+
+:mod:`debuntu_tools.nodejs_installer`
+-------------------------------------
+
+.. automodule:: debuntu_tools.nodejs_installer
+   :members:
