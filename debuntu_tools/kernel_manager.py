@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: June 23, 2016
+# Last Change: October 25, 2016
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -287,31 +287,31 @@ class KernelPackageManager(PropertyManager):
         """Render a summary of installed and removable kernel packages on the terminal."""
         logger.verbose("Sanity checking meta packages on %s ..", self.context)
         with AutomaticSpinner(label="Gathering information about %s" % self.context):
-            # Report the installed Linux kernel header/image meta package(s).
-            meta_package_types = (
-                (self.installed_image_meta_packages, "image", True),
-                (self.installed_header_meta_packages, "header", False),
-            )
-            for collection, label, expected in meta_package_types:
-                if collection:
-                    detailed_label = pluralize(len(collection), "installed Linux kernel %s meta package" % label)
-                    logger.info("Found %s:", detailed_label)
-                    for package in collection:
-                        logger.info(" - %s (%s)", package.name, package.version)
-                    if len(collection) > 1:
-                        logger.warning(compact("""
-                            You have more than one Linux kernel {label} meta
-                            package installed ({packages}) which means
-                            automatic package removal can be unreliable!
-                        """, label=label, packages=concatenate(package.name for package in collection)))
-                        logger.verbose(compact("""
-                            It's probably best to stick to one Linux kernel
-                            {label} meta package, preferably the one that
-                            matches the newest kernel :-)
-                        """, label=label))
-                elif expected:
-                    logger.warning("It looks like there's no Linux kernel %s package installed!", label)
-                    logger.info("I hope you've thought about how to handle security updates?")
+            # Report the installed Linux kernel image meta package(s).
+            if self.installed_image_meta_packages:
+                logger.info("Found %s installed:",
+                            pluralize(len(self.installed_image_meta_packages),
+                                      "Linux kernel image meta package"))
+                for package in self.installed_image_meta_packages:
+                    logger.info(" - %s (%s)", package.name, package.version)
+                if len(self.installed_image_meta_packages) > 1:
+                    names = concatenate(pkg.name for pkg in self.installed_image_meta_packages)
+                    logger.warning(compact("""
+                        You have more than one Linux kernel image meta package
+                        installed ({names}) which means automatic package
+                        removal can be unreliable!
+                    """, names=names))
+                    logger.verbose(compact("""
+                        I would suggest to stick to one Linux kernel
+                        image meta package, preferably the one that
+                        matches the newest kernel :-)
+                    """))
+            else:
+                logger.warning(compact("""
+                    It looks like there's no Linux kernel image meta package
+                    installed! I hope you've thought about how to handle
+                    security updates?
+                """))
             # Report the installed Linux kernel header/image package(s).
             logger.verbose("Checking for removable packages on %s ..", self.context)
             package_types = (
@@ -369,8 +369,8 @@ class KernelPackageManager(PropertyManager):
                 raise CleanupError(compact("""
                     Refusing to cleanup kernel related packages on {system}
                     because results can be unreliable when multiple Linux
-                    kernel meta packages are installed! You can use the -f,
-                    --force option to override this sanity check.
+                    kernel image meta packages are installed! You can use
+                    the -f, --force option to override this sanity check.
                 """, system=self.context))
             # Check if the packaging system has signaled that a system reboot
             # is required before we run the `apt-get remove' command.
@@ -505,7 +505,3 @@ class CleanupError(Exception):
     packages are installed but :attr:`~.KernelPackageManager.force` is
     :data:`False`.
     """
-
-
-if __name__ == '__main__':
-    main()
