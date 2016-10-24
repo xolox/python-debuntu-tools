@@ -167,28 +167,23 @@ class KernelPackageManager(PropertyManager):
         for line in output.splitlines():
             tokens = line.split()
             if len(tokens) >= 3:
-                status = tokens[0]
+                status, name, version = tokens[:3]
                 if len(status) == 2 and status.isalnum():
-                    name = tokens[1]
-                    mapping[name] = MaybeKernelPackage(
-                        name=name,
-                        version=Version(tokens[2]),
-                        status=status,
-                    )
+                    mapping[name] = MaybeKernelPackage(name=name, version=Version(version), status=status)
         return mapping
 
     @cached_property
     def installed_header_packages(self):
         """A list of :class:`MaybeKernelPackage` objects for the installed Linux kernel header packages."""
         return sorted((package for package in self.installed_packages.values()
-                       if package.status in ('ii', 'rc') and package.is_header_package),
+                       if package.is_installed and package.is_header_package),
                       key=lambda package: (package.version, package.name))
 
     @cached_property
     def installed_kernel_packages(self):
         """A list of :class:`MaybeKernelPackage` objects for the installed kernel images."""
         return sorted((package for package in self.installed_packages.values()
-                       if package.status in ('ii', 'rc') and package.is_kernel_package),
+                       if package.is_installed and package.is_kernel_package),
                       key=lambda package: (package.version, package.name))
 
     @cached_property
@@ -198,7 +193,7 @@ class KernelPackageManager(PropertyManager):
         # the version so that the meta packages are listed in version order
         # despite the names being different.
         return sorted((package for package in self.installed_packages.values()
-                       if package.status in ('ii', 'rc') and package.is_header_meta_package),
+                       if package.is_installed and package.is_header_meta_package),
                       key=lambda p: p.version)
 
     @cached_property
@@ -208,7 +203,7 @@ class KernelPackageManager(PropertyManager):
         # the version so that the meta packages are listed in version order
         # despite the names being different.
         return sorted((package for package in self.installed_packages.values()
-                       if package.status in ('ii', 'rc') and package.is_image_meta_package),
+                       if package.is_installed and package.is_image_meta_package),
                       key=lambda p: p.version)
 
     @cached_property
@@ -216,7 +211,7 @@ class KernelPackageManager(PropertyManager):
         """A list of sets with :class:`MaybeKernelPackage` objects for installed header and kernel packages."""
         grouped_packages = collections.defaultdict(list)
         for package in self.installed_packages.values():
-            if package.status in ('ii', 'rc') and package.is_kernel_or_header_package:
+            if package.is_installed and package.is_kernel_or_header_package:
                 grouped_packages[package.version_in_name].append(package)
         return sorted(grouped_packages.values(), key=lambda group: group[0].version)
 
@@ -376,7 +371,7 @@ class KernelPackageManager(PropertyManager):
             # is required before we run the `apt-get remove' command.
             reboot_required_before = self.context.exists(REBOOT_REQUIRED_FILE)
             # Get the set of installed packages before we run `apt-get remove'.
-            installed_packages_before = set(p for p in self.installed_packages.values() if p.status == 'ii')
+            installed_packages_before = set(p for p in self.installed_packages.values() if p.is_installed)
             # Actually run the 'apt-get remove' command.
             logger.info("Removing %s on %s ..", pluralize(len(self.removable_packages), "package"), self.context)
             self.context.execute(*self.cleanup_command, sudo=True, **options)
@@ -387,7 +382,7 @@ class KernelPackageManager(PropertyManager):
             # Check if it is safe to remove /var/run/reboot-required.
             if self.running_newest_kernel and not reboot_required_before:
                 # Get the set of installed packages after running `apt-get remove'.
-                installed_packages_after = set(p for p in self.installed_packages.values() if p.status == 'ii')
+                installed_packages_after = set(p for p in self.installed_packages.values() if p.is_installed)
                 if installed_packages_after.issubset(installed_packages_before):
                     # We can remove the signal file(s) iff:
                     # 1. A system reboot wasn't already required.
@@ -429,7 +424,12 @@ class MaybeKernelPackage(PropertyManager):
 
     @required_property
     def status(self):
-        """The status of the package (a string)."""
+        """The status of the package (a string of two characters, refer to the ``dpkg`` man pages for details)."""
+
+    @property
+    def is_installed(self):
+        """:data:`True` if the package is installed (or configuration files remain), :data:`False` otherwise."""
+        return self.status in ('ii', 'rc')
 
     @cached_property
     def is_header_meta_package(self):
