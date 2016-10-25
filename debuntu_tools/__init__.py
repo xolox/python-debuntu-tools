@@ -13,4 +13,4 @@ The top level :mod:`debuntu_tools` module contains only a version number.
 """
 
 # Semi-standard module versioning.
-__version__ = '0.3.2'
+__version__ = '0.3.3'

@@ -382,9 +382,21 @@ class KernelPackageManager(PropertyManager):
             reboot_required_before = self.context.exists(REBOOT_REQUIRED_FILE)
             # Get the set of installed packages before we run `apt-get remove'.
             installed_packages_before = set(p for p in self.installed_packages.values() if p.is_installed)
-            # Actually run the 'apt-get remove' command.
+            # Actually run the `apt-get remove' command.
             logger.info("Removing %s on %s ..", pluralize(len(self.removable_packages), "package"), self.context)
             self.context.execute(*self.cleanup_command, sudo=True, **options)
+            # Make sure `/etc/apt/apt.conf.d/01autoremove-kernels' is up to date.
+            auto_removal_script = '/etc/kernel/postinst.d/apt-auto-removal'
+            logger.verbose("Checking if %s needs to be run ..", auto_removal_script)
+            if self.context.test('test', '-x', auto_removal_script):
+                if self.dry_run:
+                    logger.verbose("Skipping %s script because we're performing a dry-run.", auto_removal_script)
+                else:
+                    logger.verbose("Running %s script ..", auto_removal_script)
+                    active_kernel = self.context.capture('uname', '--kernel-release')
+                    if not self.context.execute(auto_removal_script, active_kernel, check=False):
+                        logger.warning("Failed to update auto-remove statuses! (%s reported an error)",
+                                       auto_removal_script)
             logger.info("Done! (took %s)", timer)
             # The `apt-get remove' command invalidates all of our cached data
             # so we need to refresh our cached properties to avoid stale data.
