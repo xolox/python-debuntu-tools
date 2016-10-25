@@ -58,6 +58,7 @@ Supported options:
 # Standard library modules.
 import collections
 import getopt
+import re
 import sys
 
 # External dependencies.
@@ -268,6 +269,15 @@ class KernelPackageManager(PropertyManager):
         return any(package.name == self.active_kernel_package for package in self.installed_package_groups[-1])
 
     @cached_property
+    def dry_run(self):
+        """:data:`True` if :attr:`cleanup_command` performs a dry run, :data:`False` otherwise."""
+        return any(
+            re.match('^-[^-]', argument) and 's' in argument or
+            argument in ('--simulate', '--just-print', '--dry-run', '--recon', '--no-act')
+            for argument in self.apt_options
+        )
+
+    @cached_property
     def cleanup_command(self):
         """A list of strings with the ``apt-get`` command to remove old packages."""
         command_line = []
@@ -388,13 +398,17 @@ class KernelPackageManager(PropertyManager):
                     # 1. A system reboot wasn't already required.
                     # 2. We're already running on the newest kernel.
                     # 3. We only removed packages but didn't install or upgrade any.
-                    logger.info("System reboot is avoidable! Removing signal file(s) ..")
-                    self.context.execute(
-                        'rm', '--force',
-                        REBOOT_REQUIRED_FILE,
-                        REBOOT_REQUIRED_PACKAGES_FILE,
-                        sudo=True,
-                    )
+                    if self.dry_run:
+                        logger.info("Skipping signal file removal because we're performing a dry-run.")
+                    else:
+                        logger.info("System reboot is avoidable! Removing signal file(s) ..")
+                        self.context.execute(
+                            'rm', '--force',
+                            REBOOT_REQUIRED_FILE,
+                            REBOOT_REQUIRED_PACKAGES_FILE,
+                            sudo=True,
+                        )
+
         # Inform the operator and caller about whether a reboot is required.
         if not self.running_newest_kernel:
             logger.info("System reboot needed (not yet running the newest kernel).")
