@@ -394,7 +394,7 @@ class KernelPackageManager(PropertyManager):
                 else:
                     logger.verbose("Running %s script ..", auto_removal_script)
                     active_kernel = self.context.capture('uname', '--kernel-release')
-                    if not self.context.execute(auto_removal_script, active_kernel, check=False):
+                    if not self.context.execute(auto_removal_script, active_kernel, check=False, sudo=True):
                         logger.warning("Failed to update auto-remove statuses! (%s reported an error)",
                                        auto_removal_script)
             logger.info("Done! (took %s)", timer)
