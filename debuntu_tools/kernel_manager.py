@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: October 25, 2016
+# Last Change: October 31, 2016
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -35,6 +35,10 @@ Supported options:
     When more than one Linux kernel meta package is installed the -c, --clean
     and --remove options will refuse to run apt-get and exit with an error
     instead. Use the -f or --force option to override this sanity check.
+
+  -p, --preserve-count=NUMBER
+
+    Preserve the NUMBER newest versions of the kernel packages (defaults to 2).
 
   -r, --remote-host=ALIAS
 
@@ -90,9 +94,8 @@ def main():
     context_opts = dict()
     manager_opts = dict()
     try:
-        options, arguments = getopt.getopt(sys.argv[1:], 'cfr:vqh', [
-            'clean', 'remove',
-            'force', 'remote-host=',
+        options, arguments = getopt.getopt(sys.argv[1:], 'cfp:r:vqh', [
+            'clean', 'remove', 'force', 'preserve-count=', 'remote-host=',
             'verbose', 'quiet', 'help',
         ])
         for option, value in options:
@@ -100,6 +103,8 @@ def main():
                 action = 'cleanup_packages'
             elif option in ('-f', '--force'):
                 manager_opts['force'] = True
+            elif option in ('-p', '--preserve-count'):
+                manager_opts['preserve_count'] = int(value)
             elif option in ('-r', '--remote-host'):
                 context_opts['ssh_alias'] = value
             elif option in ('-v', '--verbose'):
@@ -244,9 +249,11 @@ class KernelPackageManager(PropertyManager):
             else:
                 # Consider removing nonactive package groups with a kernel image.
                 may_remove.append(group)
-        # Prefer new kernels over old kernels and respect
-        # the configured number of packages to preserve.
-        return will_remove + may_remove[:-preserve_count]
+        if preserve_count > 0:
+            # Prefer new kernels over old kernels and respect
+            # the configured number of packages to preserve.
+            may_remove = may_remove[:-preserve_count]
+        return will_remove + may_remove
 
     @cached_property
     def removable_header_packages(self):

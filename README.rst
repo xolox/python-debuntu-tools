@@ -100,6 +100,7 @@ The debuntu-kernel-manager program is currently in alpha status, which means a f
    "``-f``, ``--force``","When more than one Linux kernel meta package is installed the ``-c``, ``--clean``
    and ``--remove`` options will refuse to run apt-get and exit with an error
    instead. Use the ``-f`` or ``--force`` option to override this sanity check."
+   "``-p``, ``--preserve-count=NUMBER``",Preserve the ``NUMBER`` newest versions of the kernel packages (defaults to 2).
    "``-r``, ``--remote-host=ALIAS``","Detect and remove old Linux kernel header and image packages on a remote
    host over SSH. The ``ALIAS`` argument gives the SSH alias that should be used
    to connect to the remote host."
