@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: October 31, 2016
+# Last Change: December 1, 2016
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -160,6 +160,15 @@ class KernelPackageManager(PropertyManager):
         """The number of kernel packages to preserve (an integer, defaults to 2)."""
         return 2
 
+    @property
+    def dry_run(self):
+        """:data:`True` if :attr:`cleanup_command` performs a dry run, :data:`False` otherwise."""
+        return any(
+            re.match('^-[^-]', argument) and 's' in argument or
+            argument in ('--simulate', '--just-print', '--dry-run', '--recon', '--no-act')
+            for argument in self.apt_options
+        )
+
     @cached_property
     def installed_packages(self):
         """
@@ -222,9 +231,19 @@ class KernelPackageManager(PropertyManager):
         return sorted(grouped_packages.values(), key=lambda group: group[0].version)
 
     @cached_property
+    def active_kernel_release(self):
+        """The output of ``uname --kernel-release`` (a string)."""
+        return self.context.capture('uname', '--kernel-release')
+
+    @cached_property
     def active_kernel_package(self):
         """The package name for the running kernel (a string)."""
-        return 'linux-image-%s' % self.context.capture('uname', '--kernel-release')
+        return 'linux-image-%s' % self.active_kernel_release
+
+    @cached_property
+    def reboot_required(self):
+        """:data:`True` if :data:`REBOOT_REQUIRED_FILE` exists, :data:`False` otherwise."""
+        return self.context.exists(REBOOT_REQUIRED_FILE)
 
     @cached_property
     def removable_package_groups(self):
@@ -274,15 +293,6 @@ class KernelPackageManager(PropertyManager):
     def running_newest_kernel(self):
         """:data:`True` if the newest kernel is currently active, :data:`False` otherwise."""
         return any(package.name == self.active_kernel_package for package in self.installed_package_groups[-1])
-
-    @cached_property
-    def dry_run(self):
-        """:data:`True` if :attr:`cleanup_command` performs a dry run, :data:`False` otherwise."""
-        return any(
-            re.match('^-[^-]', argument) and 's' in argument or
-            argument in ('--simulate', '--just-print', '--dry-run', '--recon', '--no-act')
-            for argument in self.apt_options
-        )
 
     @cached_property
     def cleanup_command(self):
@@ -386,7 +396,7 @@ class KernelPackageManager(PropertyManager):
                 """, system=self.context))
             # Check if the packaging system has signaled that a system reboot
             # is required before we run the `apt-get remove' command.
-            reboot_required_before = self.context.exists(REBOOT_REQUIRED_FILE)
+            reboot_required_before = self.reboot_required
             # Get the set of installed packages before we run `apt-get remove'.
             installed_packages_before = set(p for p in self.installed_packages.values() if p.is_installed)
             # Actually run the `apt-get remove' command.
@@ -400,8 +410,8 @@ class KernelPackageManager(PropertyManager):
                     logger.verbose("Skipping %s script because we're performing a dry-run.", auto_removal_script)
                 else:
                     logger.verbose("Running %s script ..", auto_removal_script)
-                    active_kernel = self.context.capture('uname', '--kernel-release')
-                    if not self.context.execute(auto_removal_script, active_kernel, check=False, sudo=True):
+                    auto_removal_command = [auto_removal_script, self.active_kernel_release]
+                    if not self.context.execute(*auto_removal_command, check=False, sudo=True):
                         logger.warning("Failed to update auto-remove statuses! (%s reported an error)",
                                        auto_removal_script)
             logger.info("Done! (took %s)", timer)
@@ -427,12 +437,11 @@ class KernelPackageManager(PropertyManager):
                             REBOOT_REQUIRED_PACKAGES_FILE,
                             sudo=True,
                         )
-
         # Inform the operator and caller about whether a reboot is required.
         if not self.running_newest_kernel:
             logger.info("System reboot needed (not yet running the newest kernel).")
             return True
-        elif self.context.exists(REBOOT_REQUIRED_FILE):
+        elif self.reboot_required:
             logger.info("System reboot needed (%s exists).", REBOOT_REQUIRED_FILE)
             return True
         else:
