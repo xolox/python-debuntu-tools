@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: December 1, 2016
+# Last Change: January 18, 2017
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -411,7 +411,7 @@ class KernelPackageManager(PropertyManager):
                 else:
                     logger.verbose("Running %s script ..", auto_removal_script)
                     auto_removal_command = [auto_removal_script, self.active_kernel_release]
-                    if not self.context.execute(*auto_removal_command, check=False, sudo=True):
+                    if not self.context.execute(*auto_removal_command, check=False, sudo=True, tty=False):
                         logger.warning("Failed to update auto-remove statuses! (%s reported an error)",
                                        auto_removal_script)
             logger.info("Done! (took %s)", timer)
@@ -435,7 +435,7 @@ class KernelPackageManager(PropertyManager):
                             'rm', '--force',
                             REBOOT_REQUIRED_FILE,
                             REBOOT_REQUIRED_PACKAGES_FILE,
-                            sudo=True,
+                            sudo=True, tty=False,
                         )
         # Inform the operator and caller about whether a reboot is required.
         if not self.running_newest_kernel:
