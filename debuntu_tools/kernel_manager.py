@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: January 18, 2017
+# Last Change: April 17, 2017
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -80,6 +80,21 @@ REBOOT_REQUIRED_FILE = '/var/run/reboot-required'
 
 REBOOT_REQUIRED_PACKAGES_FILE = '/var/run/reboot-required.pkgs'
 """The absolute pathname of a file with details about why a system reboot is required (a string)."""
+
+# Compiled regular expression pattern to split package names
+# on dashes while ignoring dashes with a digit on both sides.
+PACKAGE_NAME_TOKENIZATION_PATTERN = re.compile(r'''
+    # A dash with non-digits on both sides is fine.
+    (?<=\D) - (?=\D) |
+    # A dash with a non-digit on the left side is fine.
+    (?<=\D) - (?=\d) |
+    # A dash with a non-digit on the right side is fine.
+    (?<=\d) - (?=\D)
+''', re.VERBOSE)
+
+# Compiled regular expression pattern to match kernel versions encoded
+# in package names (assuming tokens are split on the pattern above).
+KERNEL_VERSION_PATTERN = re.compile(r'\d+\.\d+\.\d+-\d+')
 
 # Initialize a logger for this module.
 logger = VerboseLogger(__name__)
@@ -474,40 +489,61 @@ class MaybeKernelPackage(PropertyManager):
         return self.status in ('ii', 'rc')
 
     @cached_property
+    def tokenized_name(self):
+        """
+        The tokenized name of the package (a list of strings).
+
+        The value of this property is computed by calling
+        :func:`tokenize_package_name()` on :attr:`name`.
+        """
+        return tokenize_package_name(self.name)
+
+    @cached_property
     def is_header_meta_package(self):
         """:data:`True` if the package is a Linux kernel header meta package, :data:`False` otherwise."""
-        tokens = self.name.split('-')
-        return (len(tokens) >= 3 and
-                tokens[0] == 'linux' and
-                'headers' in tokens and
-                not any(t[0].isdigit() for t in tokens))
+        return (len(self.tokenized_name) >= 3 and
+                self.tokenized_name[0] == 'linux' and
+                'headers' in self.tokenized_name and
+                not any(map(is_kernel_version, self.tokenized_name)))
 
     @cached_property
     def is_image_meta_package(self):
         """:data:`True` if the package is a Linux kernel image meta package, :data:`False` otherwise."""
-        tokens = self.name.split('-')
-        return (len(tokens) >= 3 and
-                tokens[0] == 'linux' and
-                'image' in tokens and
-                not any(t[0].isdigit() for t in tokens))
+        return (len(self.tokenized_name) >= 3 and
+                self.tokenized_name[0] == 'linux' and
+                'image' in self.tokenized_name and
+                not any(map(is_kernel_version, self.tokenized_name)))
 
     @cached_property
     def is_header_package(self):
         """:data:`True` if the package is a specific version of the Linux kernel headers, :data:`False` otherwise."""
-        tokens = self.name.split('-')
-        return (len(tokens) >= 3 and
-                tokens[0] == 'linux' and
-                tokens[1] == 'headers' and
-                tokens[2][0].isdigit())
+        return (len(self.tokenized_name) >= 3 and
+                self.tokenized_name[0] == 'linux' and
+                self.tokenized_name[1] == 'headers' and
+                is_kernel_version(self.tokenized_name[2]))
 
     @cached_property
     def is_kernel_package(self):
         """:data:`True` if the package is a specific version of the Linux kernel image, :data:`False` otherwise."""
-        tokens = self.name.split('-')
-        return (tokens and tokens[0] == 'linux' and
-                ((len(tokens) >= 3 and tokens[1] == 'image' and tokens[2][0].isdigit()) or
-                 (len(tokens) >= 4 and tokens[1] == 'image' and tokens[2] == 'extra' and tokens[3][0].isdigit()) or
-                 (len(tokens) >= 4 and tokens[1] == 'signed' and tokens[2] == 'image' and tokens[3][0].isdigit())))
+        return (
+            # linux-image-$VERSION
+            (len(self.tokenized_name) >= 3 and
+                self.tokenized_name[0] == 'linux' and
+                self.tokenized_name[1] == 'image' and
+                is_kernel_version(self.tokenized_name[2])) or
+            # linux-image-extra-$VERSION
+            (len(self.tokenized_name) >= 4 and
+                self.tokenized_name[0] == 'linux' and
+                self.tokenized_name[1] == 'image' and
+                self.tokenized_name[2] == 'extra' and
+                is_kernel_version(self.tokenized_name[3])) or
+            # linux-signed-image-$VERSION
+            (len(self.tokenized_name) >= 4 and
+                self.tokenized_name[0] == 'linux' and
+                self.tokenized_name[1] == 'signed' and
+                self.tokenized_name[2] == 'image' and
+                is_kernel_version(self.tokenized_name[3]))
+        )
 
     @cached_property
     def is_kernel_or_header_package(self):
@@ -536,6 +572,41 @@ class MaybeKernelPackage(PropertyManager):
             tokens = self.name.split('-')
             if tokens[-1].isalpha():
                 return tokens[-1]
+
+
+def tokenize_package_name(package_name):
+    """
+    Split a (kernel) package name into tokens.
+
+    :param package_name: The name of a package (a string).
+    :returns: A list of strings.
+
+    The :func:`tokenize_package_name()` function uses a regular expression to
+    tokenize package names by splitting on dashes while ignoring dashes with a
+    digit on both sides (i.e. dashes that are part of a version number). For
+    example:
+
+    >>> from debuntu_tools.kernel_manager import tokenize_package_name
+    >>> tokenize_package_name('linux-image-4.4.0-72-generic')
+    ['linux', 'image', '4.4.0-72', 'generic']
+    """
+    return PACKAGE_NAME_TOKENIZATION_PATTERN.split(package_name)
+
+
+def is_kernel_version(token):
+    """
+    Check whether a token in a package name looks like a kernel version.
+
+    :param token: The token to check (a string).
+    :returns: :data:`True` if the token looks like a kernel version,
+              :data:`False` otherwise.
+
+    The :func:`is_kernel_version()` function uses a regular expression
+    to check whether the given string looks like a kernel version of
+    the form ``4.4.0-72``. The string is assumed to be a package
+    name token returned by :func:`tokenize_package_name()`.
+    """
+    return KERNEL_VERSION_PATTERN.match(token) is not None
 
 
 class CleanupError(Exception):
