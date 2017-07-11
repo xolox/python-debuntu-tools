@@ -33,8 +33,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'debuntu-tools'
-copyright = u'2017, Peter Odding'
+project = 'debuntu-tools'
+copyright = '2017, Peter Odding'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -69,19 +69,19 @@ pygments_style = 'sphinx'
 # Refer to the Python standard library.
 # From: http://twistedmatrix.com/trac/ticket/4582.
 intersphinx_mapping = dict(
+    python=('https://docs.python.org/2/', None),
     coloredlogs=('https://coloredlogs.readthedocs.io/en/latest/', None),
     debpkgtools=('https://deb-pkg-tools.readthedocs.io/en/latest/', None),
     executor=('https://executor.readthedocs.io/en/latest/', None),
     humanfriendly=('https://humanfriendly.readthedocs.io/en/latest/', None),
     propertymanager=('https://property-manager.readthedocs.io/en/latest/', None),
-    python=('http://docs.python.org', None),
 )
 
 # -- Options for HTML output ---------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'classic'
+html_theme = 'nature'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'debuntutoolsdoc'
