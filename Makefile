@@ -1,17 +1,18 @@
-# Debian and Ubuntu system administration tools.
+# Makefile for the `debuntu-tools' package.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: June 23, 2016
+# Last Change: July 11, 2017
 # URL: https://debuntu-tools.readthedocs.io
 
+PACKAGE_NAME = debuntu-tools
 WORKON_HOME ?= $(HOME)/.virtualenvs
-VIRTUAL_ENV ?= $(WORKON_HOME)/debuntu-tools
+VIRTUAL_ENV ?= $(WORKON_HOME)/$(PACKAGE_NAME)
 PATH := $(VIRTUAL_ENV)/bin:$(PATH)
 MAKE := $(MAKE) --no-print-directory
 SHELL = bash
 
 default:
-	@echo 'Makefile for debuntu-tools'
+	@echo "Makefile for $(PACKAGE_NAME)"
 	@echo
 	@echo 'Usage:'
 	@echo
@@ -28,12 +29,10 @@ install:
 	@test -d "$(VIRTUAL_ENV)" || mkdir -p "$(VIRTUAL_ENV)"
 	@test -x "$(VIRTUAL_ENV)/bin/python" || virtualenv --quiet "$(VIRTUAL_ENV)"
 	@test -x "$(VIRTUAL_ENV)/bin/pip" || easy_install pip
-	@test -x "$(VIRTUAL_ENV)/bin/pip-accel" || (pip install --quiet pip-accel && pip-accel install --quiet 'urllib3[secure]')
-	@echo "Installing dependencies .." >&2
+	@test -x "$(VIRTUAL_ENV)/bin/pip-accel" || pip install --quiet pip-accel
 	@pip-accel install --quiet --requirement=requirements.txt
-	@echo "Updating installation of debuntu-tools .." >&2
-	@pip uninstall --yes debuntu-tools &>/dev/null || true
-	@pip install --quiet --no-deps --editable .
+	@pip uninstall --yes $(PACKAGE_NAME) &>/dev/null || true
+	@pip install --quiet --no-deps --ignore-installed .
 
 reset:
 	$(MAKE) clean
@@ -46,8 +45,7 @@ check: install
 	@flake8
 
 readme: install
-	pip-accel install --quiet cogapp
-	cog.py -r README.rst
+	@pip-accel install --quiet cogapp && cog.py -r README.rst
 
 docs: install
 	@pip-accel install --quiet sphinx
@@ -55,15 +53,15 @@ docs: install
 
 publish: install
 	git push origin && git push --tags origin
-	make clean
+	$(MAKE) clean
 	pip-accel install --quiet twine wheel
 	python setup.py sdist bdist_wheel
 	twine upload dist/*
-	make clean
+	$(MAKE) clean
 
 clean:
-	rm -Rf *.egg .cache .coverage .tox build dist docs/build htmlcov
-	find -depth -type d -name __pycache__ -exec rm -Rf {} \;
-	find -type f -name '*.pyc' -delete
+	@rm -Rf *.egg .cache .coverage .tox build dist docs/build htmlcov
+	@find -depth -type d -name __pycache__ -exec rm -Rf {} \;
+	@find -type f -name '*.pyc' -delete
 
 .PHONY: default install reset check readme docs publish clean
