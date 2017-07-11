@@ -4,7 +4,7 @@
 apt-mirror-updater >= 0.3.1
 coloredlogs >= 5.0
 deb-pkg-tools >= 1.36
-executor >= 11.0
+executor >= 16.1
 humanfriendly >= 1.44.7
 property-manager >= 2.1
 requests >= 2.11.1

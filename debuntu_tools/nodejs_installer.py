@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: September 7, 2016
+# Last Change: July 11, 2017
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -75,7 +75,7 @@ from executor import ExternalCommandFailed, quote
 from executor.contexts import create_context
 from humanfriendly.terminal import usage, warning
 from humanfriendly.text import compact, dedent, format
-from property_manager import PropertyManager, lazy_property, mutable_property, required_property
+from property_manager import PropertyManager, mutable_property, required_property
 from verboselogs import VerboseLogger
 
 # Initialize a logger for this module.
@@ -199,33 +199,31 @@ class NodeInstaller(PropertyManager):
         """
         # Make sure we're dealing with a Debian or Ubuntu system.
         logger.verbose("Validating operating system distribution ..")
-        if self.distributor_id.lower() not in ('debian', 'ubuntu'):
+        if self.context.distributor_id not in ('debian', 'ubuntu'):
             raise UnsupportedSystemError(compact("""
                 According to the output of the 'lsb_release --id' command you
                 are running an unsupported operating system distribution!
                 (output: {output})
-            """, output=repr(self.distributor_id)))
+            """, output=repr(self.context.distributor_id)))
         # Make sure we're dealing with a supported version of Debian or Ubuntu.
-        base_url = format('https://deb.nodesource.com/{version}/dists/{codename}/',
-                          version=self.nodejs_version, codename=self.distribution_codename.lower())
+        base_url = format(
+            'https://deb.nodesource.com/{version}/dists/{codename}/',
+            version=self.nodejs_version,
+            codename=self.context.distribution_codename,
+        )
         logger.info("Validating repository availability (%s) ..", base_url)
         if not requests.get(base_url).ok:
-            raise UnsupportedSystemError(compact("""
+            raise UnsupportedSystemError(compact(
+                """
                 Based on the output of the 'lsb_release --codename' command
                 ({codename}) it seems that your version of {distro} isn't
                 supported by NodeSource! (more specifically, it seems that
                 {url} isn't available)
-            """, distro=self.distributor_id, codename=self.distribution_codename, url=base_url))
-
-    @lazy_property
-    def distributor_id(self):
-        """The operating system's distributor ID (a string)."""
-        return self.context.capture('lsb_release', '--short', '--id')
-
-    @lazy_property
-    def distribution_codename(self):
-        """The operating system distribution codename (a string)."""
-        return self.context.capture('lsb_release', '--short', '--codename')
+                """,
+                codename=self.context.distribution_codename,
+                distro=self.context.distributor_id,
+                url=base_url,
+            ))
 
     def install_signing_key(self, key_url='https://deb.nodesource.com/gpgkey/nodesource.gpg.key'):
         """Install the signing key for the NodeSource repositories."""
@@ -245,12 +243,17 @@ class NodeInstaller(PropertyManager):
     def install_sources_file(self):
         """Install a 'package resource list' that points ``apt`` to the NodeSource repository."""
         logger.info("Installing package resource list (%s) ..", self.sources_file)
-        sources_list = dedent('''
+        sources_list = dedent(
+            '''
             # {filename}:
             # Get NodeJS binaries from the NodeSource repository.
             deb https://deb.nodesource.com/{version} {codename} main
             deb-src https://deb.nodesource.com/{version} {codename} main
-        ''', filename=self.sources_file, version=self.nodejs_version, codename=self.distribution_codename)
+            ''',
+            filename=self.sources_file,
+            version=self.nodejs_version,
+            codename=self.context.distribution_codename,
+        )
         # TODO It would be nicer if context.write_file() accepted sudo=True!
         self.context.execute('cat > %s' % quote(self.sources_file), input=sources_list, sudo=True)
 
