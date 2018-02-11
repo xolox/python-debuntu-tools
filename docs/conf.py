@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: July 11, 2017
+# Last Change: February 11, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """Sphinx documentation configuration for the `debuntu-tools` project."""
@@ -34,7 +34,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'debuntu-tools'
-copyright = '2017, Peter Odding'
+copyright = '2018, Peter Odding'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
