@@ -297,8 +297,16 @@ def watch_worker(name):
     A :mod:`multiprocessing` worker used by :func:`watch_all_systems()`.
 
     :param name: The value for :attr:`~EncryptedSystem.config_section` (a string).
+
+    The :class:`EncryptedSystem` object is initialized with
+    :attr:`~EncryptedSystem.config_section` set to `name` and
+    :attr:`~EncryptedSystem.interactive` set to :data:`False`.
     """
-    with EncryptedSystem(config_section=name) as program:
+    options = dict(
+        config_section=name,
+        interactive=False,
+    )
+    with EncryptedSystem(**options) as program:
         program.watch_system()
 
 
