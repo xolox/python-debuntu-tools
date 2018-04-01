@@ -232,16 +232,16 @@ def main():
         sys.exit(1)
     # Try to unlock the remote system.
     try:
-        with EncryptedSystem(**program_opts) as program:
-            if do_watch:
-                if watch_all:
-                    watch_all_systems(loader)
-                else:
+        if do_watch and watch_all:
+            watch_all_systems(loader)
+        else:
+            with EncryptedSystem(**program_opts) as program:
+                if do_watch:
                     program.watch_system()
-            else:
-                program.unlock_system()
-                if do_shell:
-                    start_interactive_shell(program.post_context)
+                else:
+                    program.unlock_system()
+                    if do_shell:
+                        start_interactive_shell(program.post_context)
     except EncryptedSystemError as e:
         logger.error("Aborting due to error: %s", e)
         sys.exit(2)
