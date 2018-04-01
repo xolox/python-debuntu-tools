@@ -1,10 +1,10 @@
-# This is a pip requirement file that defines the installation requirements
-# of debuntu-tools. It's read by the setup.py script to avoid duplication.
-
 apt-mirror-updater >= 0.3.1
 coloredlogs >= 5.0
 deb-pkg-tools >= 1.36
 executor >= 16.1
-humanfriendly >= 1.44.7
+humanfriendly >= 4.10
+linux-utils >= 0.5
 property-manager >= 2.1
 requests >= 2.11.1
+update-dotdee >= 5.0
+verboselogs >= 1.7

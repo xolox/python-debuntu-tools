@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: February 11, 2018
+# Last Change: April 1, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """Sphinx documentation configuration for the `debuntu-tools` project."""
@@ -10,7 +10,7 @@ import os
 import sys
 
 # Add the debuntu-tools source distribution's root directory to the module path.
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 # -- General configuration -----------------------------------------------------
 
@@ -69,12 +69,14 @@ pygments_style = 'sphinx'
 # Refer to the Python standard library.
 # From: http://twistedmatrix.com/trac/ticket/4582.
 intersphinx_mapping = dict(
-    python=('https://docs.python.org/2/', None),
+    python2=('https://docs.python.org/2/', None),
+    python3=('https://docs.python.org/3/', None),
     coloredlogs=('https://coloredlogs.readthedocs.io/en/latest/', None),
     debpkgtools=('https://deb-pkg-tools.readthedocs.io/en/latest/', None),
     executor=('https://executor.readthedocs.io/en/latest/', None),
     humanfriendly=('https://humanfriendly.readthedocs.io/en/latest/', None),
     propertymanager=('https://property-manager.readthedocs.io/en/latest/', None),
+    updatedotdee=('https://update-dotdee.readthedocs.io/en/latest/', None),
 )
 
 # -- Options for HTML output ---------------------------------------------------
@@ -82,6 +84,3 @@ intersphinx_mapping = dict(
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_theme = 'nature'
-
-# Output file base name for HTML help builder.
-htmlhelp_basename = 'debuntutoolsdoc'

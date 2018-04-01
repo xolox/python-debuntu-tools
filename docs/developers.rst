@@ -13,7 +13,7 @@ the `debuntu-tools` package.
 --------------------
 
 .. automodule:: debuntu_tools
-   :members:
+   :members: __version__, start_interactive_shell
 
 :mod:`debuntu_tools.kernel_manager`
 -------------------------------------
@@ -25,4 +25,16 @@ the `debuntu-tools` package.
 -------------------------------------
 
 .. automodule:: debuntu_tools.nodejs_installer
+   :members:
+
+:mod:`debuntu_tools.remote_reboot`
+----------------------------------
+
+.. automodule:: debuntu_tools.remote_reboot
+   :members:
+
+:mod:`debuntu_tools.remote_unlock`
+----------------------------------
+
+.. automodule:: debuntu_tools.remote_unlock
    :members:

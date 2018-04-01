@@ -3,7 +3,7 @@
 # Setup script for the `debuntu-tools' package.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: July 11, 2017
+# Last Change: March 31, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -128,6 +128,8 @@ setup(name='debuntu-tools',
       entry_points=dict(console_scripts=[
           'debuntu-kernel-manager = debuntu_tools.kernel_manager:main',
           'debuntu-nodejs-installer = debuntu_tools.nodejs_installer:main',
+          'reboot-remote-system = debuntu_tools.remote_reboot:main',
+          'unlock-remote-system = debuntu_tools.remote_unlock:main',
       ]),
       install_requires=get_install_requires(),
       extras_require=get_extras_require(),
