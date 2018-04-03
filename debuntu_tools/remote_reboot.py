@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: March 31, 2018
+# Last Change: April 3, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -145,11 +145,12 @@ def reboot_remote_system(context):
     # Wait for the system to have been rebooted.
     if have_config:
         # Unlock the root disk encryption.
-        program = EncryptedSystem(
+        options = dict(
             config_loader=loader,
             config_section=context.ssh_alias,
         )
-        program.unlock_system()
+        with EncryptedSystem(**options) as program:
+            program.unlock_system()
     else:
         # Wait for a successful SSH connection to report a lower uptime.
         logger.info("Waiting for %s to come back online ..", context)
