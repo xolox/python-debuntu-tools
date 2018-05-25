@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: April 3, 2018
+# Last Change: May 25, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -195,5 +195,5 @@ def is_encrypted(context):
         if '/' in listing.split():
             logger.info("Yes it looks like the system is using root disk encryption.")
             return True
-    logger.info("No it doesn't look like the system isn't using root disk encryption.")
+    logger.info("No it doesn't look like the system is using root disk encryption.")
     return False
