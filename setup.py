@@ -3,7 +3,7 @@
 # Setup script for the `debuntu-tools' package.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: March 31, 2018
+# Last Change: May 26, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -124,6 +124,7 @@ setup(name='debuntu-tools',
       url='https://debuntu-tools.readthedocs.org/',
       author="Peter Odding",
       author_email='peter@peterodding.com',
+      license='MIT',
       packages=find_packages(),
       entry_points=dict(console_scripts=[
           'debuntu-kernel-manager = debuntu_tools.kernel_manager:main',
