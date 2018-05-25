@@ -103,6 +103,11 @@ def reboot_remote_system(context):
     Reboot a remote Linux system (unattended).
 
     :param context: A :class:`~executor.contexts.RemoteContext` object.
+    :raises: :exc:`~exceptions.ValueError` when the remote system appears to be
+             using root disk encryption but there's no ``unlock-remote-system``
+             configuration section available. The reasoning behind this is to
+             err on the side of caution when we suspect we won't be able to get
+             the remote system back online.
 
     This function reboots a remote Linux system, waits for the system to go
     down and then waits for it to come back up.
