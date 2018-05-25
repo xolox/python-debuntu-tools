@@ -16,7 +16,7 @@ the `debuntu-tools` package.
    :members: __version__, start_interactive_shell
 
 :mod:`debuntu_tools.kernel_manager`
--------------------------------------
+-----------------------------------
 
 .. automodule:: debuntu_tools.kernel_manager
    :members:

@@ -1,5 +1,5 @@
 Sample output of debuntu-kernel-manager
-=========================================
+=======================================
 
 On this page you can find sample outputs of ``debuntu-kernel-manager``.
 
