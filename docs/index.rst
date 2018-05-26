@@ -18,6 +18,7 @@ The readme is the best place to start reading, it's targeted at all users:
 Miscellaneous documents:
 
 .. toctree::
+   unlock-remote-system.rst
    debuntu-kernel-manager.rst
 
 API documentation

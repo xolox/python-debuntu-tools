@@ -55,7 +55,9 @@ Requirements
 
 - The ``unlock-remote-system`` program expects a remote Linux system that has been
   configured in such a way that the pre-boot environment (the initial ramdisk)
-  enables a static IP address and starts an SSH server like dropbear_.
+  enables a static IP address and starts an SSH server like dropbear_. More
+  information about how to set this up is `available in the documentation
+  <https://debuntu-tools.readthedocs.io/en/latest/unlock-remote-system.html>`_.
 
 Usage
 -----
