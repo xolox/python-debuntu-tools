@@ -2,15 +2,18 @@ Debian and Ubuntu system administration tools
 =============================================
 
 Welcome to the documentation of `debuntu-tools` version |release|!
+The following sections are available:
+
+.. contents::
+   :local:
 
 User documentation
 ------------------
 
-The readme is mostly targeted at users of the command line interface and is
-probably the best place to start reading:
+The readme is the best place to start reading, it's targeted at all users:
 
 .. toctree::
-   users.rst
+   readme.rst
 
 Miscellaneous documents:
 
@@ -20,8 +23,15 @@ Miscellaneous documents:
 API documentation
 -----------------
 
-The following documentation is targeted at people who are interested in using
-the Python API:
+The following API documentation is automatically generated from the source code:
 
 .. toctree::
-   developers.rst
+   api.rst
+
+Change log
+----------
+
+The change log lists notable changes to the project:
+
+.. toctree::
+   changelog.rst

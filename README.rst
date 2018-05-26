@@ -329,9 +329,9 @@ Contact
 -------
 
 The latest version of `debuntu-tools` is available on PyPI_ and GitHub_. The
-documentation is hosted on `Read the Docs`_. For bug reports please create an
-issue on GitHub_. If you have questions, suggestions, etc. feel free to send me
-an e-mail at `peter@peterodding.com`_.
+documentation is hosted on `Read the Docs`_ and includes a changelog_. For bug
+reports please create an issue on GitHub_. If you have questions, suggestions,
+etc. feel free to send me an e-mail at `peter@peterodding.com`_.
 
 License
 -------
@@ -340,31 +340,31 @@ This software is licensed under the `MIT license`_.
 
 © 2018 Peter Odding.
 
-.. External references:
 .. _apt-get: https://manpages.debian.org/apt-get
-.. _boot-timeout: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.boot_timeout
-.. _connect-timeout: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.connect_timeout
-.. _cryptroot-config: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.cryptroot_config
-.. _cryptroot-program: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.cryptroot_program
+.. _boot-timeout: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.boot_timeout
+.. _changelog: https://debuntu-tools.readthedocs.io/en/latest/changelog.html
+.. _connect-timeout: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.connect_timeout
+.. _cryptroot-config: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.cryptroot_config
+.. _cryptroot-program: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.cryptroot_program
 .. _documentation: https://debuntu-tools.readthedocs.io
 .. _dpkg: https://manpages.debian.org/dpkg
 .. _dropbear: https://manpages.debian.org/dropbear
 .. _GitHub: https://github.com/xolox/python-debuntu-tools
-.. _key-script: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.key_script
-.. _known-hosts-file: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.known_hosts_file
+.. _key-script: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.key_script
+.. _known-hosts-file: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.known_hosts_file
 .. _MIT license: http://en.wikipedia.org/wiki/MIT_License
-.. _named-pipe: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.named_pipe
-.. _password-name: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.password
-.. _password-store: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.password
-.. _password: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.password
+.. _named-pipe: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.named_pipe
+.. _password-name: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.password
+.. _password-store: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.password
+.. _password: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.password
 .. _per user site-packages directory: https://www.python.org/dev/peps/pep-0370/
 .. _peter@peterodding.com: peter@peterodding.com
-.. _post-boot: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.post_boot
-.. _pre-boot: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.pre_boot
+.. _post-boot: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.post_boot
+.. _pre-boot: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.pre_boot
 .. _PyPI: https://pypi.python.org/pypi/debuntu-tools
 .. _Read the Docs: https://debuntu-tools.readthedocs.org/en/latest/#api-documentation
-.. _retry-interval: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.retry_interval
-.. _scan-timeout: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.scan_timeout
-.. _ssh-proxy: https://debuntu-tools.readthedocs.io/en/latest/developers.html#debuntu_tools.remote_unlock.EncryptedSystem.ssh_proxy
+.. _retry-interval: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.retry_interval
+.. _scan-timeout: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.scan_timeout
+.. _ssh-proxy: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.ssh_proxy
 .. _sudo: https://manpages.debian.org/sudo
 .. _virtual environments: http://docs.python-guide.org/en/latest/dev/virtualenvs/
