@@ -11,6 +11,24 @@ to `semantic versioning`_.
 .. _Keep a Changelog: http://keepachangelog.com/
 .. _semantic versioning: http://semver.org/
 
+`Release 0.5`_ (2018-05-26)
+---------------------------
+
+- Make it possible to interactively enter the root disk encryption password
+  into an interactive prompt on the remote system, while connected over SSH.
+- Added `documentation about remote root disk encryption
+  <https://debuntu-tools.readthedocs.io/en/latest/unlock-remote-system.html>`_.
+- Fixed a confusing typo in logging output of ``reboot-remote-system``.
+- Improved ``reboot_remote_system()`` API documentation.
+- Added this changelog, restructured the online documentation.
+- Integrated ``property_manager.sphinx`` in online documentation.
+- Added ``license='MIT'`` key to ``setup.py`` script.
+- Include documentation in source distributions.
+- Fixed broken reStructuredText reference in ``nodejs_installer.py``.
+- Fixed unaligned reStructuredText headings.
+
+.. _Release 0.5: https://github.com/xolox/python-debuntu-tools/compare/0.4.1...0.5
+
 `Release 0.4.1`_ (2018-04-03)
 -----------------------------
 
