@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: April 1, 2018
+# Last Change: May 26, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """Sphinx documentation configuration for the `debuntu-tools` project."""
@@ -21,6 +21,7 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.intersphinx',
     'humanfriendly.sphinx',
+    'property_manager.sphinx',
 ]
 
 # Paths that contain templates, relative to this directory.
