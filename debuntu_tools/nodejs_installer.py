@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: July 11, 2017
+# Last Change: May 26, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -158,6 +158,7 @@ class NodeInstaller(PropertyManager):
     keyword arguments to the class initializer.
 
     .. _manual installation: https://github.com/nodesource/distributions#manual-installation
+    .. _NodeSource: https://github.com/nodesource/distributions
     """
 
     @required_property
