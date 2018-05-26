@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: April 1, 2018
+# Last Change: May 26, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -485,10 +485,10 @@ class EncryptedSystem(PropertyManager):
         """
         return self.config.get('named-pipe', '/lib/cryptsetup/passfifo')
 
-    @required_property(cached=True, repr=False)
+    @mutable_property(cached=True, repr=False)
     def password(self):
         """
-        The password that unlocks the root filesystem of the remote host (a string).
+        The password that unlocks the root filesystem of the remote host (a string or :data:`None`).
 
         If the configuration section contains the option `password-name` then
         :func:`get_password_from_store()` will be used to get the password by
@@ -718,45 +718,59 @@ class EncryptedSystem(PropertyManager):
         """
         Make the root disk encryption pass phrase available to the remote host.
 
-        :raises: :exc:`UnsupportedSystemError` when :attr:`have_named_pipe` and
-                 :attr:`have_cryptroot_config` are both :data:`False`.
+        :raises: :exc:`UnsupportedSystemError` when :attr:`have_named_pipe`,
+                 :attr:`have_cryptroot_config` and :attr:`have_cryptroot_program`
+                 are all :data:`False`.
 
-        If :attr:`have_named_pipe` is :data:`True` the internal method
-        :func:`write_to_named_pipe()` is used to write :attr:`password` to the
-        named pipe. This is the preferred way to make the password available to
-        the remote host because it's simple and robust.
+        If :attr:`have_named_pipe` is :data:`True` and :attr:`password` is set,
+        the internal method :func:`write_to_named_pipe()` is used to write
+        :attr:`password` to the named pipe. This is the preferred way to make
+        the password available to the remote host because it's simple and
+        robust.
 
         When the named pipe isn't available but :attr:`have_cryptroot_config`
         is :data:`True` the following internal methods are used instead:
 
         - :func:`kill_interactive_prompt()`
-        - :func:`create_key_script()`
+        - :func:`create_key_script()` (this is only called when
+          :attr:`password` is set)
         - :func:`run_cryptroot_program()`
         - :func:`kill_emergency_shell()`
 
         This is more convoluted than the named pipe but it works :-).
         """
-        # If the named pipe is available that's all we need!
-        if self.have_named_pipe:
-            self.write_to_named_pipe()
-            return
-        # If /conf/conf.d/cryptroot is available we can use a key script.
-        if self.have_cryptroot_config:
-            self.kill_interactive_prompt()
-            self.create_key_script()
-            self.run_cryptroot_program(interactive=False)
-            self.kill_emergency_shell()
-            return
-        # Explain why non-interactive unlocking isn't supported.
-        logger.warning(compact("""
-            The named pipe '%s' and the configuration file '%s' are both
-            missing, which makes it impossible to non-interactively offer
-            the root disk encryption pass phrase.
-        """, self.named_pipe, self.cryptroot_config))
+        # The following two non-interactive methods only work when
+        # the caller provided us the root disk encryption password.
+        if self.password:
+            # If the named pipe is available that's all we need!
+            if self.have_named_pipe:
+                self.write_to_named_pipe()
+                return
+            # If /conf/conf.d/cryptroot is available we can use a key script.
+            if self.have_cryptroot_config:
+                self.kill_interactive_prompt()
+                self.create_key_script()
+                self.run_cryptroot_program(interactive=False)
+                self.kill_emergency_shell()
+                return
+            # Explain why non-interactive unlocking isn't supported.
+            logger.warning(compact("""
+                The named pipe '%s' and the configuration file '%s' are both
+                missing. This makes it impossible to non-interactively offer
+                the root disk encryption pass phrase.
+            """, self.named_pipe, self.cryptroot_config))
+        else:
+            # Explain why non-interactive unlocking isn't supported.
+            logger.notice(compact("""
+                No password was provided, this makes it impossible to
+                non-interactively offer the root disk encryption pass phrase.
+            """))
         # If /scripts/local-top/cryptroot is available we can run it interactively.
         if self.have_cryptroot_program:
             logger.info("I'll try to open an interactive prompt instead ..")
+            self.kill_interactive_prompt()
             self.run_cryptroot_program(interactive=True)
+            self.kill_emergency_shell()
             return
         # If all else fails we'll give up with a clear error message.
         raise UnsupportedSystemError(compact("""
