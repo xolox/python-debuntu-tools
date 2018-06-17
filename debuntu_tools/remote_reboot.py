@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: May 25, 2018
+# Last Change: May 26, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -48,7 +48,7 @@ from verboselogs import VerboseLogger
 
 # Modules included in our package.
 from debuntu_tools import start_interactive_shell
-from debuntu_tools.remote_unlock import EncryptedSystemError, EncryptedSystem
+from debuntu_tools.remote_unlock import ConnectionProfile, EncryptedSystemError, EncryptedSystem
 
 # Initialize a logger for this module.
 logger = VerboseLogger(__name__)
@@ -86,8 +86,8 @@ def main():
         sys.exit(1)
     # Reboot the remote system.
     try:
-        context = RemoteContext(ssh_alias=arguments[0])
-        reboot_remote_system(context)
+        context = get_post_context(arguments[0])
+        reboot_remote_system(context=context, name=arguments[0])
         if do_shell:
             start_interactive_shell(context)
     except EncryptedSystemError as e:
@@ -98,11 +98,14 @@ def main():
         sys.exit(3)
 
 
-def reboot_remote_system(context):
+def reboot_remote_system(context=None, name=None):
     """
     Reboot a remote Linux system (unattended).
 
-    :param context: A :class:`~executor.contexts.RemoteContext` object.
+    :param context: A :class:`~executor.contexts.RemoteContext`
+                    object (or :data:`None`).
+    :param name: The name of the ``unlock-remote-system`` configuration
+                 section for the remote host (a string) or :data:`None`.
     :raises: :exc:`~exceptions.ValueError` when the remote system appears to be
              using root disk encryption but there's no ``unlock-remote-system``
              configuration section available. The reasoning behind this is to
@@ -117,14 +120,20 @@ def reboot_remote_system(context):
     encryption of the remote system will be unlocked after it is rebooted.
     """
     timer = Timer()
-    # Sanity check the execution context.
+    # Get the execution context from a configuration section.
+    if name and not context:
+        context = get_post_context(name)
+    # Sanity check the provided execution context.
     if not isinstance(context, RemoteContext):
         msg = "Expected a RemoteContext object, got %s instead!"
         raise TypeError(msg % type(context))
+    # Default the remote host name to the SSH alias.
+    if not name:
+        name = context.ssh_alias
     logger.info("Preparing to reboot %s ..", context)
     # Check if the name matches a configuration section.
     loader = ConfigLoader(program_name='unlock-remote-system')
-    have_config = (context.ssh_alias in loader.section_names)
+    have_config = (name in loader.section_names)
     # Check if the remote system is using root disk encryption.
     needs_unlock = is_encrypted(context)
     # Refuse to reboot if we can't get the system back online.
@@ -150,10 +159,7 @@ def reboot_remote_system(context):
     # Wait for the system to have been rebooted.
     if have_config:
         # Unlock the root disk encryption.
-        options = dict(
-            config_loader=loader,
-            config_section=context.ssh_alias,
-        )
+        options = dict(config_loader=loader, config_section=name)
         with EncryptedSystem(**options) as program:
             program.unlock_system()
     else:
@@ -183,6 +189,28 @@ def get_uptime(context):
     """
     contents = context.capture('cat', '/proc/uptime', silent=True)
     return next(float(t) for t in contents.split())
+
+
+def get_post_context(name):
+    """
+    Get an execution context for the post-boot environment of a remote host.
+
+    :param name: The configuration section name or SSH alias of the remote host (a string).
+    :returns: A :class:`~executor.contexts.RemoteContext` object.
+    """
+    loader = ConfigLoader(program_name='unlock-remote-system')
+    if name in loader.section_names:
+        options = loader.get_options(name)
+        post_boot = options.get('post-boot')
+        if post_boot:
+            profile = ConnectionProfile(expression=post_boot)
+            return RemoteContext(
+                identity_file=profile.identity_file,
+                port=profile.port_number,
+                ssh_alias=profile.hostname,
+                ssh_user=profile.username,
+            )
+    return RemoteContext(ssh_alias=name)
 
 
 def is_encrypted(context):
