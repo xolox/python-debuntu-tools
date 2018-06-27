@@ -38,3 +38,9 @@ the `debuntu-tools` package.
 
 .. automodule:: debuntu_tools.remote_unlock
    :members:
+
+:mod:`debuntu_tools.upgrade_system`
+-----------------------------------
+
+.. automodule:: debuntu_tools.upgrade_system
+   :members:

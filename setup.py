@@ -3,7 +3,7 @@
 # Setup script for the `debuntu-tools' package.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: May 26, 2018
+# Last Change: June 27, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -131,6 +131,7 @@ setup(name='debuntu-tools',
           'debuntu-nodejs-installer = debuntu_tools.nodejs_installer:main',
           'reboot-remote-system = debuntu_tools.remote_reboot:main',
           'unlock-remote-system = debuntu_tools.remote_unlock:main',
+          'upgrade-remote-system = debuntu_tools.upgrade_system:main',
       ]),
       install_requires=get_install_requires(),
       extras_require=get_extras_require(),

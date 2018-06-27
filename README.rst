@@ -59,6 +59,10 @@ Requirements
   information about how to set this up is `available in the documentation
   <https://debuntu-tools.readthedocs.io/en/latest/unlock-remote-system.html>`_.
 
+- The ``upgrade-remote-system`` builds on top of ``debuntu-kernel-manager`` as
+  well as ``unlock-remote-system`` (in the form of ``reboot-remote-system``)
+  and so all of the requirements above apply.
+
 Usage
 -----
 
@@ -265,6 +269,40 @@ section the options in that section define how unlock-remote-system operates.
    encryption when the remote system is rebooted. The monitoring continues
    indefinitely."
    "``-a``, ``--all``",Enable monitoring of all configured systems when combined with ``--watch``.
+   "``-v``, ``--verbose``",Increase logging verbosity (can be repeated).
+   "``-q``, ``--quiet``",Decrease logging verbosity (can be repeated).
+   "``-h``, ``--help``",Show this message and exit.
+
+.. [[[end]]]
+
+upgrade-remote-system
+~~~~~~~~~~~~~~~~~~~~~
+
+.. A DRY solution to avoid duplication of the `upgrade-remote-system --help' text:
+..
+.. [[[cog
+.. from humanfriendly.usage import inject_usage
+.. inject_usage('debuntu_tools.upgrade_system')
+.. ]]]
+
+**Usage:** `upgrade-remote-system [OPTIONS] [SSH_ALIAS]`
+
+Upgrade the system packages on a remote Debian or Ubuntu system, reboot the
+system if required due to security updates, remove old Linux kernel and header
+packages and optionally remove 'auto-removable' system packages.
+
+If the given SSH alias matches a section in the 'unlock-remote-system'
+configuration, the root disk encryption of the remote system will be
+automatically unlocked when the system is rebooted.
+
+**Supported options:**
+
+.. csv-table::
+   :header: Option, Description
+   :widths: 30, 70
+
+
+   "``-s``, ``--shell``",Start an interactive shell on the remote system afterwards.
    "``-v``, ``--verbose``",Increase logging verbosity (can be repeated).
    "``-q``, ``--quiet``",Decrease logging verbosity (can be repeated).
    "``-h``, ``--help``",Show this message and exit.

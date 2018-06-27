@@ -11,6 +11,17 @@ to `semantic versioning`_.
 .. _Keep a Changelog: http://keepachangelog.com/
 .. _semantic versioning: http://semver.org/
 
+`Release 0.6`_ (2018-06-28)
+---------------------------
+
+- Added ``upgrade-remote-system`` program.
+- Improved ``reboot-remote-system`` API (it's now possible to give a name to
+  ``reboot_remote_system()`` and leave it up to that function to get the
+  execution context from the configuration file).
+- Documentation about remote root disk encryption on Raspberry Pi.
+
+.. _Release 0.6: https://github.com/xolox/python-debuntu-tools/compare/0.5...0.6
+
 `Release 0.5`_ (2018-05-26)
 ---------------------------
 
