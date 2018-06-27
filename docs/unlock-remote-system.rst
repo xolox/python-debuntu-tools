@@ -112,6 +112,15 @@ Make sure to run the following command after editing ``/etc/default/grub``::
 
  $ sudo update-grub
 
+On a Raspberry Pi
+~~~~~~~~~~~~~~~~~
+
+In June 2018 I got Ubuntu 16.04 with root disk encryption running on a
+Raspberry Pi. Because the boot process of a Raspberry Pi is very different from
+a regular computer, the way you configure it is also different. In this case I
+needed to add the ``ip=…`` kernel parameter to the file
+``/boot/firmware/cmdline.txt``.
+
 Slow boot issues
 ~~~~~~~~~~~~~~~~
 
