@@ -11,6 +11,26 @@ to `semantic versioning`_.
 .. _Keep a Changelog: http://keepachangelog.com/
 .. _semantic versioning: http://semver.org/
 
+`Release 0.6.1`_ (2018-07-03)
+-----------------------------
+
+Bumped `linux-utils` requirement to pull in an upstream bug fix:
+
+- An exception was being raised by the ``upgrade-remote-system`` program (at
+  the point where it calls into ``reboot-remote-system``) because the file
+  ``/etc/crypttab`` didn't exist.
+
+- However experience tells me that ``/etc/crypttab`` doesn't exist in default
+  Debian and Ubuntu installations (unless that system was specifically set up
+  with root disk encryption using the installation wizard).
+
+- Furthermore this was in the code path responsible for figuring out whether a
+  given system has any encrypted filesystems. Because "none" is definitely a
+  valid answer, I've changed `linux-utils` to log a notice that the file
+  couldn't be found but not raise any exceptions.
+
+.. _Release 0.6.1: https://github.com/xolox/python-debuntu-tools/compare/0.6...0.6.1
+
 `Release 0.6`_ (2018-06-28)
 ---------------------------
 
