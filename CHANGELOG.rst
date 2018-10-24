@@ -11,6 +11,33 @@ to `semantic versioning`_.
 .. _Keep a Changelog: http://keepachangelog.com/
 .. _semantic versioning: http://semver.org/
 
+`Release 0.6.3`_ (2018-10-24)
+-----------------------------
+
+Bump connection timeout of ``unlock-remote-system`` from 60 seconds to 2 minutes.
+
+In the past months the ``reboot-remote-system`` command has failed to reboot my
+Raspberry Pi in an unattended fashion in about half of my attempts, because
+after the reboot command is given it takes more than 60 seconds for the
+pre-boot environment to become available... 😒
+
+Now on the one hand this is just a single use case based on crappy hardware,
+and I could have just configured a longer ``connect-timeout`` in the
+configuration file of course. On the other hand I do intend for tools like
+``reboot-remote-system`` to be as much "do what I mean" as possible and picking
+reasonable defaults is part of that.
+
+Also I have plenty of experience with server hardware and I know that some of
+those servers take more than a minute to finish initializing their hardware and
+actually booting the OS, so even with fancy hardware boot times can be long 😇.
+
+Because I didn't see the harm in bumping the ``connect-timeout`` for all users
+I decided to do that instead of configuring this on my end, potentially
+"obscuring a bad default". Anyone who disagrees is free to define a more
+restrictive ``connect-timeout`` using a configuration file.
+
+.. _Release 0.6.3: https://github.com/xolox/python-debuntu-tools/compare/0.6.2...0.6.3
+
 `Release 0.6.2`_ (2018-10-24)
 -----------------------------
 

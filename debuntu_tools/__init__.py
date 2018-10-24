@@ -18,7 +18,7 @@ __all__ = (
 )
 
 # Semi-standard module versioning.
-__version__ = '0.6.2'
+__version__ = '0.6.3'
 """The global version number of the `debuntu-tools` package (a string)."""
 
 # Initialize a logger for this module.
