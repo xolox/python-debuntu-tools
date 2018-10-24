@@ -517,10 +517,20 @@ class MaybeKernelPackage(PropertyManager):
     @cached_property
     def is_header_package(self):
         """:data:`True` if the package is a specific version of the Linux kernel headers, :data:`False` otherwise."""
-        return (len(self.tokenized_name) >= 3 and
-                self.tokenized_name[0] == 'linux' and
-                self.tokenized_name[1] == 'headers' and
-                is_kernel_version(self.tokenized_name[2]))
+        return (
+            # linux-headers-$VERSION-generic
+            len(self.tokenized_name) >= 3
+            and self.tokenized_name[0] == "linux"
+            and self.tokenized_name[1] == "headers"
+            and is_kernel_version(self.tokenized_name[2])
+        ) or (
+            # linux-raspi2-headers-$VERSION
+            len(self.tokenized_name) >= 4
+            and self.tokenized_name[0] == "linux"
+            and self.tokenized_name[1].isalnum()
+            and self.tokenized_name[2] == "headers"
+            and is_kernel_version(self.tokenized_name[3])
+        )
 
     @cached_property
     def is_kernel_package(self):
