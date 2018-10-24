@@ -11,6 +11,23 @@ to `semantic versioning`_.
 .. _Keep a Changelog: http://keepachangelog.com/
 .. _semantic versioning: http://semver.org/
 
+`Release 0.6.2`_ (2018-10-24)
+-----------------------------
+
+- Improve header package detection of ``debuntu-kernel-manager``: While doing
+  routine maintenance on the Raspberry Pi that handles DHCP and DNS in my home
+  network I noticed that while the package ``linux-headers-4.4.0-1096-raspi2``
+  was recognized the package ``linux-raspi2-headers-4.4.0-1096`` was not
+  suggested for removal by ``debuntu-kernel-manager``. This is now fixed.
+
+- I've also reduced code duplication in ``debuntu-kernel-manager``. While this
+  isn't intended to change the behavior of the program I haven't gone to great
+  lengths to actually verify this, however it seems to me that only in obscure
+  theoretical corner cases would there be an actual observable difference in
+  behavior.
+
+.. _Release 0.6.2: https://github.com/xolox/python-debuntu-tools/compare/0.6.1...0.6.2
+
 `Release 0.6.1`_ (2018-07-03)
 -----------------------------
 
