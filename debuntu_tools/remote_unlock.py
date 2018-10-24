@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: May 26, 2018
+# Last Change: October 24, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -375,8 +375,8 @@ class EncryptedSystem(PropertyManager):
 
     @mutable_property(cached=True)
     def connect_timeout(self):
-        """How long to wait for the system to become reachable (an integer, defaults to 60 seconds)."""
-        return int(parse_timespan(self.config.get('connect-timeout', '60s')))
+        """How long to wait for the system to become reachable (an integer, defaults to 2 minutes)."""
+        return int(parse_timespan(self.config.get('connect-timeout', '2m')))
 
     @lazy_property
     def context(self):
