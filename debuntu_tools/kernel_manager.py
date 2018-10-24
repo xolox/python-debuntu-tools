@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: April 17, 2017
+# Last Change: October 24, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -554,24 +554,16 @@ class MaybeKernelPackage(PropertyManager):
     def version_in_name(self):
         """The version encoded in the name of the package (a string or :data:`None`)."""
         if self.is_kernel_or_header_package:
-            tokens = self.name.split('-')
-            # Remove the static prefix from the package name.
-            for prefix in 'linux', 'signed', 'image', 'extra', 'headers':
-                if tokens and tokens[0] == prefix:
-                    tokens.pop(0)
-            # Ignore the kernel type that may be encoded in the package name.
-            if tokens[-1].isalpha():
-                tokens.pop(-1)
-            # Reconstruct the version number encoded in the name of the package.
-            return '-'.join(tokens)
+            for token in self.tokenized_name:
+                if is_kernel_version(token):
+                    return token
 
     @cached_property
     def kernel_type(self):
         """The kernel type encoded in the name of the package (a string or :data:`None`)."""
         if self.is_kernel_or_header_package:
-            tokens = self.name.split('-')
-            if tokens[-1].isalpha():
-                return tokens[-1]
+            if self.tokenized_name[-1].isalpha():
+                return self.tokenized_name[-1]
 
 
 def tokenize_package_name(package_name):
