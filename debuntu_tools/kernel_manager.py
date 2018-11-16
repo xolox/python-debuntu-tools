@@ -1,15 +1,15 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: October 24, 2018
+# Last Change: November 17, 2018
 # URL: https://debuntu-tools.readthedocs.io
 
 """
 Usage: debuntu-kernel-manager [OPTIONS] -- [APT_OPTIONS]
 
-Detect and remove old Linux kernel header and image packages that can be safely
-removed to conserve disk space and speed up apt-get runs that install or remove
-kernels.
+Detect and remove old Linux kernel header, image and modules packages that can
+be safely removed to conserve disk space and speed up apt-get runs that install
+or remove kernels.
 
 By default old packages are detected and reported on the command line but no
 changes are made. To actually remove old packages you need to use the -c,
@@ -75,26 +75,29 @@ from humanfriendly.terminal import ansi_wrap, usage, warning
 from property_manager import PropertyManager, cached_property, key_property, required_property
 from verboselogs import VerboseLogger
 
-REBOOT_REQUIRED_FILE = '/var/run/reboot-required'
+REBOOT_REQUIRED_FILE = "/var/run/reboot-required"
 """The absolute pathname of the file that exists when a system reboot is required (a string)."""
 
-REBOOT_REQUIRED_PACKAGES_FILE = '/var/run/reboot-required.pkgs'
+REBOOT_REQUIRED_PACKAGES_FILE = "/var/run/reboot-required.pkgs"
 """The absolute pathname of a file with details about why a system reboot is required (a string)."""
 
 # Compiled regular expression pattern to split package names
 # on dashes while ignoring dashes with a digit on both sides.
-PACKAGE_NAME_TOKENIZATION_PATTERN = re.compile(r'''
+PACKAGE_NAME_TOKENIZATION_PATTERN = re.compile(
+    r"""
     # A dash with non-digits on both sides is fine.
     (?<=\D) - (?=\D) |
     # A dash with a non-digit on the left side is fine.
     (?<=\D) - (?=\d) |
     # A dash with a non-digit on the right side is fine.
     (?<=\d) - (?=\D)
-''', re.VERBOSE)
+""",
+    re.VERBOSE,
+)
 
 # Compiled regular expression pattern to match kernel versions encoded
 # in package names (assuming tokens are split on the pattern above).
-KERNEL_VERSION_PATTERN = re.compile(r'\d+\.\d+\.\d+-\d+')
+KERNEL_VERSION_PATTERN = re.compile(r"\d+\.\d+\.\d+-\d+")
 
 # Initialize a logger for this module.
 logger = VerboseLogger(__name__)
@@ -105,44 +108,42 @@ def main():
     # Initialize logging to the terminal and system log.
     coloredlogs.install(syslog=True)
     # Parse the command line arguments.
-    action = 'render_summary'
+    action = "render_summary"
     context_opts = dict()
     manager_opts = dict()
     try:
-        options, arguments = getopt.getopt(sys.argv[1:], 'cfp:r:vqh', [
-            'clean', 'remove', 'force', 'preserve-count=', 'remote-host=',
-            'verbose', 'quiet', 'help',
-        ])
+        options, arguments = getopt.getopt(
+            sys.argv[1:],
+            "cfp:r:vqh",
+            ["clean", "remove", "force", "preserve-count=", "remote-host=", "verbose", "quiet", "help"],
+        )
         for option, value in options:
-            if option in ('-c', '--clean', '--remove'):
-                action = 'cleanup_packages'
-            elif option in ('-f', '--force'):
-                manager_opts['force'] = True
-            elif option in ('-p', '--preserve-count'):
-                manager_opts['preserve_count'] = int(value)
-            elif option in ('-r', '--remote-host'):
-                context_opts['ssh_alias'] = value
-            elif option in ('-v', '--verbose'):
+            if option in ("-c", "--clean", "--remove"):
+                action = "cleanup_packages"
+            elif option in ("-f", "--force"):
+                manager_opts["force"] = True
+            elif option in ("-p", "--preserve-count"):
+                manager_opts["preserve_count"] = int(value)
+            elif option in ("-r", "--remote-host"):
+                context_opts["ssh_alias"] = value
+            elif option in ("-v", "--verbose"):
                 coloredlogs.increase_verbosity()
-            elif option in ('-q', '--quiet'):
+            elif option in ("-q", "--quiet"):
                 coloredlogs.decrease_verbosity()
-            elif option in ('-h', '--help'):
+            elif option in ("-h", "--help"):
                 usage(__doc__)
                 return
             else:
                 raise Exception("Unhandled option!")
         # Any positional arguments are passed to apt-get.
-        manager_opts['apt_options'] = arguments
+        manager_opts["apt_options"] = arguments
     except Exception as e:
         warning("Failed to parse command line arguments! (%s)", e)
         sys.exit(1)
     # Execute the requested action(s).
     context = create_context(**context_opts)
     try:
-        manager = KernelPackageManager(
-            context=context,
-            **manager_opts
-        )
+        manager = KernelPackageManager(context=context, **manager_opts)
         getattr(manager, action)()
     except (CleanupError, ExternalCommandFailed) as e:
         logger.error("%s", e)
@@ -179,8 +180,9 @@ class KernelPackageManager(PropertyManager):
     def dry_run(self):
         """:data:`True` if :attr:`cleanup_command` performs a dry run, :data:`False` otherwise."""
         return any(
-            re.match('^-[^-]', argument) and 's' in argument or
-            argument in ('--simulate', '--just-print', '--dry-run', '--recon', '--no-act')
+            re.match("^-[^-]", argument)
+            and "s" in argument
+            or argument in ("--simulate", "--just-print", "--dry-run", "--recon", "--no-act")
             for argument in self.apt_options
         )
 
@@ -193,7 +195,7 @@ class KernelPackageManager(PropertyManager):
         ``dpkg --list`` command.
         """
         mapping = {}
-        output = self.context.capture('dpkg', '--list')
+        output = self.context.capture("dpkg", "--list")
         for line in output.splitlines():
             tokens = line.split()
             if len(tokens) >= 3:
@@ -205,16 +207,38 @@ class KernelPackageManager(PropertyManager):
     @cached_property
     def installed_header_packages(self):
         """A list of :class:`MaybeKernelPackage` objects for the installed Linux kernel header packages."""
-        return sorted((package for package in self.installed_packages.values()
-                       if package.is_installed and package.is_header_package),
-                      key=lambda package: (package.version, package.name))
+        return sorted(
+            (
+                package
+                for package in self.installed_packages.values()
+                if package.is_installed and package.is_header_package
+            ),
+            key=lambda package: (package.version, package.name),
+        )
 
     @cached_property
     def installed_kernel_packages(self):
         """A list of :class:`MaybeKernelPackage` objects for the installed kernel images."""
-        return sorted((package for package in self.installed_packages.values()
-                       if package.is_installed and package.is_kernel_package),
-                      key=lambda package: (package.version, package.name))
+        return sorted(
+            (
+                package
+                for package in self.installed_packages.values()
+                if package.is_installed and package.is_kernel_package
+            ),
+            key=lambda package: (package.version, package.name),
+        )
+
+    @cached_property
+    def installed_modules_packages(self):
+        """A list of :class:`MaybeKernelPackage` objects for the installed kernel modules packages."""
+        return sorted(
+            (
+                package
+                for package in self.installed_packages.values()
+                if package.is_installed and package.is_modules_package
+            ),
+            key=lambda package: (package.version, package.name),
+        )
 
     @cached_property
     def installed_header_meta_packages(self):
@@ -222,9 +246,14 @@ class KernelPackageManager(PropertyManager):
         # We change the sort key for meta packages from (name, version) to just
         # the version so that the meta packages are listed in version order
         # despite the names being different.
-        return sorted((package for package in self.installed_packages.values()
-                       if package.is_installed and package.is_header_meta_package),
-                      key=lambda p: p.version)
+        return sorted(
+            (
+                package
+                for package in self.installed_packages.values()
+                if package.is_installed and package.is_header_meta_package
+            ),
+            key=lambda p: p.version,
+        )
 
     @cached_property
     def installed_image_meta_packages(self):
@@ -232,28 +261,33 @@ class KernelPackageManager(PropertyManager):
         # We change the sort key for meta packages from (name, version) to just
         # the version so that the meta packages are listed in version order
         # despite the names being different.
-        return sorted((package for package in self.installed_packages.values()
-                       if package.is_installed and package.is_image_meta_package),
-                      key=lambda p: p.version)
+        return sorted(
+            (
+                package
+                for package in self.installed_packages.values()
+                if package.is_installed and package.is_image_meta_package
+            ),
+            key=lambda p: p.version,
+        )
 
     @cached_property
     def installed_package_groups(self):
         """A list of sets with :class:`MaybeKernelPackage` objects for installed header and kernel packages."""
         grouped_packages = collections.defaultdict(list)
         for package in self.installed_packages.values():
-            if package.is_installed and package.is_kernel_or_header_package:
+            if package.is_installed and package.is_supported_package:
                 grouped_packages[package.version_in_name].append(package)
         return sorted(grouped_packages.values(), key=lambda group: group[0].version)
 
     @cached_property
     def active_kernel_release(self):
         """The output of ``uname --kernel-release`` (a string)."""
-        return self.context.capture('uname', '--kernel-release')
+        return self.context.capture("uname", "--kernel-release")
 
     @cached_property
     def active_kernel_package(self):
         """The package name for the running kernel (a string)."""
-        return 'linux-image-%s' % self.active_kernel_release
+        return "linux-image-%s" % self.active_kernel_release
 
     @cached_property
     def reboot_required(self):
@@ -300,9 +334,14 @@ class KernelPackageManager(PropertyManager):
         return sorted(pkg for grp in self.removable_package_groups for pkg in grp if pkg.is_kernel_package)
 
     @cached_property
+    def removable_modules_packages(self):
+        """A list of :class:`MaybeKernelPackage` objects for modules packages considered to be removable."""
+        return sorted(pkg for grp in self.removable_package_groups for pkg in grp if pkg.is_modules_package)
+
+    @cached_property
     def removable_packages(self):
         """A list of :class:`MaybeKernelPackage` objects for kernel related packages considered to be removable."""
-        return self.removable_header_packages + self.removable_kernel_packages
+        return self.removable_header_packages + self.removable_kernel_packages + self.removable_modules_packages
 
     @cached_property
     def running_newest_kernel(self):
@@ -314,10 +353,10 @@ class KernelPackageManager(PropertyManager):
         """A list of strings with the ``apt-get`` command to remove old packages."""
         command_line = []
         if self.removable_packages:
-            command_line.extend(['apt-get', 'remove', '--purge'])
+            command_line.extend(["apt-get", "remove", "--purge"])
             command_line.extend(self.apt_options)
             for group in self.removable_package_groups:
-                command_line.extend(package.name for package in group)
+                command_line.extend(sorted(package.name for package in group))
         return command_line
 
     def render_summary(self):
@@ -326,34 +365,49 @@ class KernelPackageManager(PropertyManager):
         with AutomaticSpinner(label="Gathering information about %s" % self.context):
             # Report the installed Linux kernel image meta package(s).
             if self.installed_image_meta_packages:
-                logger.info("Found %s installed:",
-                            pluralize(len(self.installed_image_meta_packages),
-                                      "Linux kernel image meta package"))
+                logger.info(
+                    "Found %s installed:",
+                    pluralize(len(self.installed_image_meta_packages), "Linux kernel image meta package"),
+                )
                 for package in self.installed_image_meta_packages:
                     logger.info(" - %s (%s)", package.name, package.version)
                 if len(self.installed_image_meta_packages) > 1:
                     names = concatenate(pkg.name for pkg in self.installed_image_meta_packages)
-                    logger.warning(compact("""
-                        You have more than one Linux kernel image meta package
-                        installed ({names}) which means automatic package
-                        removal can be unreliable!
-                    """, names=names))
-                    logger.verbose(compact("""
-                        I would suggest to stick to one Linux kernel
-                        image meta package, preferably the one that
-                        matches the newest kernel :-)
-                    """))
+                    logger.warning(
+                        compact(
+                            """
+                            You have more than one Linux kernel image meta
+                            package installed ({names}) which means automatic
+                            package removal can be unreliable!
+                            """,
+                            names=names,
+                        )
+                    )
+                    logger.verbose(
+                        compact(
+                            """
+                            I would suggest to stick to one Linux kernel image
+                            meta package, preferably the one that matches the
+                            newest kernel :-)
+                            """
+                        )
+                    )
             else:
-                logger.warning(compact("""
-                    It looks like there's no Linux kernel image meta package
-                    installed! I hope you've thought about how to handle
-                    security updates?
-                """))
+                logger.warning(
+                    compact(
+                        """
+                        It looks like there's no Linux kernel image meta
+                        package installed! I hope you've thought about how to
+                        handle security updates?
+                        """
+                    )
+                )
             # Report the installed Linux kernel header/image package(s).
             logger.verbose("Checking for removable packages on %s ..", self.context)
             package_types = (
                 (self.installed_kernel_packages, "image", True),
                 (self.installed_header_packages, "header", False),
+                (self.installed_modules_packages, "modules", False),
             )
             for collection, label, expected in package_types:
                 if collection:
@@ -361,28 +415,27 @@ class KernelPackageManager(PropertyManager):
                     for group in self.installed_package_groups:
                         matching_packages = sorted(package.name for package in group if package in collection)
                         active_group = any(package.name == self.active_kernel_package for package in group)
-                        removable_group = (group in self.removable_package_groups)
+                        removable_group = group in self.removable_package_groups
                         if matching_packages:
                             logger.info(
                                 " - %s (%s)",
                                 concatenate(matching_packages),
-                                ansi_wrap("removable", color='green')
-                                if removable_group else ansi_wrap(
-                                    "the active kernel" if active_group else
-                                    ("one of %i newest kernels" % self.preserve_count),
-                                    color='blue'
+                                ansi_wrap("removable", color="green")
+                                if removable_group
+                                else ansi_wrap(
+                                    "the active kernel"
+                                    if active_group
+                                    else ("one of %i newest kernels" % self.preserve_count),
+                                    color="blue",
                                 ),
                             )
                 elif expected:
                     logger.warning("No installed %s packages found, this can't be right?!", label)
             # Report the removable packages.
             if self.removable_packages:
-                logger.info(
-                    "Found %s that can be removed.",
-                    pluralize(len(self.removable_packages), "package"),
-                )
+                logger.info("Found %s that can be removed.", pluralize(len(self.removable_packages), "package"))
                 # Report the shell command to remove the packages.
-                logger.verbose("Command to remove packages: %s", ' '.join(self.cleanup_command))
+                logger.verbose("Command to remove packages: %s", " ".join(self.cleanup_command))
             else:
                 logger.info("No packages need to be removed! :-)")
 
@@ -403,12 +456,17 @@ class KernelPackageManager(PropertyManager):
         self.render_summary()
         if self.cleanup_command:
             if len(self.installed_image_meta_packages) > 1 and not self.force:
-                raise CleanupError(compact("""
-                    Refusing to cleanup kernel related packages on {system}
-                    because results can be unreliable when multiple Linux
-                    kernel image meta packages are installed! You can use
-                    the -f, --force option to override this sanity check.
-                """, system=self.context))
+                raise CleanupError(
+                    compact(
+                        """
+                        Refusing to cleanup kernel related packages on {system}
+                        because results can be unreliable when multiple Linux
+                        kernel image meta packages are installed! You can use
+                        the -f, --force option to override this sanity check.
+                        """,
+                        system=self.context,
+                    )
+                )
             # Check if the packaging system has signaled that a system reboot
             # is required before we run the `apt-get remove' command.
             reboot_required_before = self.reboot_required
@@ -418,17 +476,18 @@ class KernelPackageManager(PropertyManager):
             logger.info("Removing %s on %s ..", pluralize(len(self.removable_packages), "package"), self.context)
             self.context.execute(*self.cleanup_command, sudo=True, **options)
             # Make sure `/etc/apt/apt.conf.d/01autoremove-kernels' is up to date.
-            auto_removal_script = '/etc/kernel/postinst.d/apt-auto-removal'
+            auto_removal_script = "/etc/kernel/postinst.d/apt-auto-removal"
             logger.verbose("Checking if %s needs to be run ..", auto_removal_script)
-            if self.context.test('test', '-x', auto_removal_script):
+            if self.context.test("test", "-x", auto_removal_script):
                 if self.dry_run:
                     logger.verbose("Skipping %s script because we're performing a dry-run.", auto_removal_script)
                 else:
                     logger.verbose("Running %s script ..", auto_removal_script)
                     auto_removal_command = [auto_removal_script, self.active_kernel_release]
                     if not self.context.execute(*auto_removal_command, check=False, sudo=True, tty=False):
-                        logger.warning("Failed to update auto-remove statuses! (%s reported an error)",
-                                       auto_removal_script)
+                        logger.warning(
+                            "Failed to update auto-remove statuses! (%s reported an error)", auto_removal_script
+                        )
             logger.info("Done! (took %s)", timer)
             # The `apt-get remove' command invalidates all of our cached data
             # so we need to refresh our cached properties to avoid stale data.
@@ -447,10 +506,7 @@ class KernelPackageManager(PropertyManager):
                     else:
                         logger.info("System reboot is avoidable! Removing signal file(s) ..")
                         self.context.execute(
-                            'rm', '--force',
-                            REBOOT_REQUIRED_FILE,
-                            REBOOT_REQUIRED_PACKAGES_FILE,
-                            sudo=True, tty=False,
+                            "rm", "--force", REBOOT_REQUIRED_FILE, REBOOT_REQUIRED_PACKAGES_FILE, sudo=True, tty=False
                         )
         # Inform the operator and caller about whether a reboot is required.
         if not self.running_newest_kernel:
@@ -469,7 +525,7 @@ class MaybeKernelPackage(PropertyManager):
     """Dumb container for entries parsed from ``dpkg --list`` output."""
 
     # Explicitly define the sort order of the key properties.
-    key_properties = 'name', 'version'
+    key_properties = "name", "version"
 
     @key_property
     def name(self):
@@ -486,7 +542,7 @@ class MaybeKernelPackage(PropertyManager):
     @property
     def is_installed(self):
         """:data:`True` if the package is installed (or configuration files remain), :data:`False` otherwise."""
-        return self.status in ('ii', 'rc')
+        return self.status in ("ii", "rc")
 
     @cached_property
     def tokenized_name(self):
@@ -501,18 +557,22 @@ class MaybeKernelPackage(PropertyManager):
     @cached_property
     def is_header_meta_package(self):
         """:data:`True` if the package is a Linux kernel header meta package, :data:`False` otherwise."""
-        return (len(self.tokenized_name) >= 3 and
-                self.tokenized_name[0] == 'linux' and
-                'headers' in self.tokenized_name and
-                not any(map(is_kernel_version, self.tokenized_name)))
+        return (
+            len(self.tokenized_name) >= 3
+            and self.tokenized_name[0] == "linux"
+            and "headers" in self.tokenized_name
+            and not any(map(is_kernel_version, self.tokenized_name))
+        )
 
     @cached_property
     def is_image_meta_package(self):
         """:data:`True` if the package is a Linux kernel image meta package, :data:`False` otherwise."""
-        return (len(self.tokenized_name) >= 3 and
-                self.tokenized_name[0] == 'linux' and
-                'image' in self.tokenized_name and
-                not any(map(is_kernel_version, self.tokenized_name)))
+        return (
+            len(self.tokenized_name) >= 3
+            and self.tokenized_name[0] == "linux"
+            and "image" in self.tokenized_name
+            and not any(map(is_kernel_version, self.tokenized_name))
+        )
 
     @cached_property
     def is_header_package(self):
@@ -536,34 +596,58 @@ class MaybeKernelPackage(PropertyManager):
     def is_kernel_package(self):
         """:data:`True` if the package is a specific version of the Linux kernel image, :data:`False` otherwise."""
         return (
-            # linux-image-$VERSION
-            (len(self.tokenized_name) >= 3 and
-                self.tokenized_name[0] == 'linux' and
-                self.tokenized_name[1] == 'image' and
-                is_kernel_version(self.tokenized_name[2])) or
-            # linux-image-extra-$VERSION
-            (len(self.tokenized_name) >= 4 and
-                self.tokenized_name[0] == 'linux' and
-                self.tokenized_name[1] == 'image' and
-                self.tokenized_name[2] == 'extra' and
-                is_kernel_version(self.tokenized_name[3])) or
-            # linux-signed-image-$VERSION
-            (len(self.tokenized_name) >= 4 and
-                self.tokenized_name[0] == 'linux' and
-                self.tokenized_name[1] == 'signed' and
-                self.tokenized_name[2] == 'image' and
-                is_kernel_version(self.tokenized_name[3]))
+            (
+                # linux-image-$VERSION
+                len(self.tokenized_name) >= 3
+                and self.tokenized_name[0] == "linux"
+                and self.tokenized_name[1] == "image"
+                and is_kernel_version(self.tokenized_name[2])
+            )
+            or (
+                # linux-image-extra-$VERSION
+                len(self.tokenized_name) >= 4
+                and self.tokenized_name[0] == "linux"
+                and self.tokenized_name[1] == "image"
+                and self.tokenized_name[2] == "extra"
+                and is_kernel_version(self.tokenized_name[3])
+            )
+            or (
+                # linux-signed-image-$VERSION
+                len(self.tokenized_name) >= 4
+                and self.tokenized_name[0] == "linux"
+                and self.tokenized_name[1] == "signed"
+                and self.tokenized_name[2] == "image"
+                and is_kernel_version(self.tokenized_name[3])
+            )
         )
 
     @cached_property
-    def is_kernel_or_header_package(self):
-        """:data:`True` if the package is a Linux kernel image or headers package, :data:`False` otherwise."""
-        return self.is_header_package or self.is_kernel_package
+    def is_modules_package(self):
+        """:data:`True` if the package contains Linux kernel modules, :data:`False` otherwise."""
+        return (
+            # linux-modules-$VERSION-$VARIANT
+            len(self.tokenized_name) >= 3
+            and self.tokenized_name[0] == "linux"
+            and self.tokenized_name[1] == "modules"
+            and is_kernel_version(self.tokenized_name[2])
+        ) or (
+            # linux-modules-extra-$VERSION-$VARIANT
+            len(self.tokenized_name) >= 4
+            and self.tokenized_name[0] == "linux"
+            and self.tokenized_name[1] == "modules"
+            and self.tokenized_name[2] == "extra"
+            and is_kernel_version(self.tokenized_name[3])
+        )
+
+    @cached_property
+    def is_supported_package(self):
+        """:data:`True` if the package concerns a Linux kernel image or modules or headers, :data:`False` otherwise."""
+        return self.is_header_package or self.is_kernel_package or self.is_modules_package
 
     @cached_property
     def version_in_name(self):
         """The version encoded in the name of the package (a string or :data:`None`)."""
-        if self.is_kernel_or_header_package:
+        if self.is_supported_package:
             for token in self.tokenized_name:
                 if is_kernel_version(token):
                     return token
@@ -571,7 +655,7 @@ class MaybeKernelPackage(PropertyManager):
     @cached_property
     def kernel_type(self):
         """The kernel type encoded in the name of the package (a string or :data:`None`)."""
-        if self.is_kernel_or_header_package:
+        if self.is_supported_package:
             if self.tokenized_name[-1].isalpha():
                 return self.tokenized_name[-1]
 

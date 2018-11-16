@@ -11,6 +11,14 @@ to `semantic versioning`_.
 .. _Keep a Changelog: http://keepachangelog.com/
 .. _semantic versioning: http://semver.org/
 
+`Release 0.6.4`_ (2018-11-17)
+-----------------------------
+
+The ``debuntu-kernel-manager`` program now supports cleaning up Linux kernel
+modules packages (``linux-modules-*``).
+
+.. _Release 0.6.4: https://github.com/xolox/python-debuntu-tools/compare/0.6.3...0.6.4
+
 `Release 0.6.3`_ (2018-10-24)
 -----------------------------
 
