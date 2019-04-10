@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: April 10, 2019
+# Last Change: April 11, 2019
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -228,10 +228,13 @@ def is_encrypted(context):
     """
     logger.info("Checking root disk encryption on %s ..", context)
     for entry in parse_crypttab(context=context):
-        logger.verbose("Checking if %s contains root filesystem ..", entry.source_device)
-        listing = context.capture('lsblk', entry.source_device)
-        if '/' in listing.split():
-            logger.info("Yes it looks like the system is using root disk encryption.")
-            return True
+        if context.test('test', '-b', entry.source_device):
+            logger.verbose("Checking if %s contains root filesystem ..", entry.source_device)
+            listing = context.capture('lsblk', entry.source_device)
+            if '/' in listing.split():
+                logger.info("Yes it looks like the system is using root disk encryption.")
+                return True
+        else:
+            logger.verbose("Ignoring %s because it's not a block device.", entry.source_device)
     logger.info("No it doesn't look like the system is using root disk encryption.")
     return False
