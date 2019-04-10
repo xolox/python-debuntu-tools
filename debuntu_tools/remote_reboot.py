@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: May 26, 2018
+# Last Change: April 10, 2019
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -156,25 +156,30 @@ def reboot_remote_system(context=None, name=None):
             caused by the remote SSH server being shut down as a result of the
             `reboot' command.
         """))
-    # Wait for the system to have been rebooted.
+    # Unlock the root disk encryption.
     if have_config:
-        # Unlock the root disk encryption.
         options = dict(config_loader=loader, config_section=name)
         with EncryptedSystem(**options) as program:
             program.unlock_system()
-    else:
-        # Wait for a successful SSH connection to report a lower uptime.
-        logger.info("Waiting for %s to come back online ..", context)
-        while True:
-            try:
-                new_uptime = get_uptime(context)
-                if old_uptime > new_uptime:
-                    break
-                else:
-                    time.sleep(1)
-            except RemoteConnectFailed:
-                time.sleep(0.1)
-        logger.success("Took %s to reboot %s.", timer, context)
+    # Wait for a successful SSH connection to report a lower uptime. We do this
+    # even when we just unlocked remote disk encryption, because in that case
+    # the SSH server in the post-boot environment hasn't been confirmed to
+    # successfully accept connections (we just observed the host keys
+    # changing). This works to counteract SSH accepting the connection attempt
+    # but reporting "System is booting up. See pam_nologin(8)" on the standard
+    # error stream followed by exit(255) which is fairly useless to callers of
+    # reboot_remote_system() that expect the system to be available...
+    logger.info("Waiting for %s to come back online ..", context)
+    while True:
+        try:
+            new_uptime = get_uptime(context)
+            if old_uptime > new_uptime:
+                break
+            else:
+                time.sleep(1)
+        except RemoteConnectFailed:
+            time.sleep(0.1)
+    logger.success("Took %s to reboot %s.", timer, context)
 
 
 def get_uptime(context):
