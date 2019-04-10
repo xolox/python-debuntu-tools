@@ -41,7 +41,7 @@ import coloredlogs
 from humanfriendly import Timer, compact, format_timespan
 from humanfriendly.terminal import usage, warning
 from executor.contexts import RemoteContext
-from executor.ssh.client import RemoteConnectFailed
+from executor.ssh.client import RemoteAccount, RemoteConnectFailed
 from linux_utils.crypttab import parse_crypttab
 from update_dotdee import ConfigLoader
 from verboselogs import VerboseLogger
@@ -86,8 +86,9 @@ def main():
         sys.exit(1)
     # Reboot the remote system.
     try:
+        account = RemoteAccount(arguments[0])
         context = get_post_context(arguments[0])
-        reboot_remote_system(context=context, name=arguments[0])
+        reboot_remote_system(context=context, name=account.ssh_alias)
         if do_shell:
             start_interactive_shell(context)
     except EncryptedSystemError as e:
@@ -203,9 +204,10 @@ def get_post_context(name):
     :param name: The configuration section name or SSH alias of the remote host (a string).
     :returns: A :class:`~executor.contexts.RemoteContext` object.
     """
+    account = RemoteAccount(name)
     loader = ConfigLoader(program_name='unlock-remote-system')
-    if name in loader.section_names:
-        options = loader.get_options(name)
+    if account.ssh_alias in loader.section_names:
+        options = loader.get_options(account.ssh_alias)
         post_boot = options.get('post-boot')
         if post_boot:
             profile = ConnectionProfile(expression=post_boot)
@@ -213,7 +215,7 @@ def get_post_context(name):
                 identity_file=profile.identity_file,
                 port=profile.port_number,
                 ssh_alias=profile.hostname,
-                ssh_user=profile.username,
+                ssh_user=account.ssh_user or profile.username,
             )
     return RemoteContext(ssh_alias=name)
 
