@@ -11,6 +11,15 @@ to `semantic versioning`_.
 .. _Keep a Changelog: http://keepachangelog.com/
 .. _semantic versioning: http://semver.org/
 
+`Release 0.7`_ (2019-04-10)
+---------------------------
+
+- Improved ``upgrade-remote-system`` (reboot when running old kernel).
+- Bug fix for ``reboot-remote-system`` (always confirm SSH connectivity).
+- Updated the remote root disk encryption how to (Ubuntu 18.04 compatibility).
+
+.. _Release 0.7: https://github.com/xolox/python-debuntu-tools/compare/0.6.4...0.7
+
 `Release 0.6.4`_ (2018-11-17)
 -----------------------------
 
