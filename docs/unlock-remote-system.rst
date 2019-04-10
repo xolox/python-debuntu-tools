@@ -2,9 +2,10 @@ Remote root disk encryption
 ===========================
 
 This document contains notes about setting up remote root disk encryption on a
-Linux_ server. My experiences are based on Ubuntu_ 12.04, 14.04 and 16.04 but
-I'm guessing most of these things will work very similar on Debian_ and its
-derivatives_. In fact some of these notes apply to all Linux distributions.
+Linux_ server. My experiences are based on Ubuntu_ 12.04, 14.04, 16.04 and
+18.04 but I'm guessing most of these things will work very similar on Debian_
+and its derivatives_. In fact some of these notes apply to all Linux
+distributions.
 
 We will configure the system to enable network connectivity in the initramfs_
 so that we can connect using SSH_ and inject the root disk encryption pass
@@ -62,6 +63,24 @@ Install your own SSH key
 
 You can install your own public SSH key using the following steps:
 
+.. contents::
+   :local:
+
+On Ubuntu >= 18.04
+++++++++++++++++++
+
+1. Open the file ``/etc/dropbear-initramfs/authorized_keys`` in a text
+   editor of your choosing to add your public key::
+
+   $ sudo vim /etc/dropbear-initramfs/authorized_keys
+
+2. Update your initramfs_ images to include the key you added::
+
+   $ sudo update-initramfs -uk all
+
+On Ubuntu < 18.04
++++++++++++++++++
+
 1. First make sure the ``/etc/initramfs-tools/root/.ssh`` directory exists::
 
    $ sudo mkdir -p /etc/initramfs-tools/root/.ssh
@@ -111,6 +130,16 @@ the named fields:
 Make sure to run the following command after editing ``/etc/default/grub``::
 
  $ sudo update-grub
+
+Consistent device naming
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The example above uses the device name ``eth0`` however with the introduction
+of `consistent network device naming`_ the ``eth*`` names were retired. If you
+need or want them back you can add the kernel parameters ``biosdevname=0`` and
+``net.ifnames=0`` to the ``$GRUB_CMDLINE_LINUX`` variable.
+
+.. _consistent network device naming: https://en.wikipedia.org/wiki/Consistent_Network_Device_Naming
 
 On a Raspberry Pi
 ~~~~~~~~~~~~~~~~~
