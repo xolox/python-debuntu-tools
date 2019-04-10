@@ -1,14 +1,15 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: June 27, 2018
+# Last Change: April 10, 2019
 # URL: https://debuntu-tools.readthedocs.io
 
 """
 Usage: upgrade-remote-system [OPTIONS] [SSH_ALIAS]
 
 Upgrade the system packages on a remote Debian or Ubuntu system, reboot the
-system if required due to security updates, remove old Linux kernel and header
+system when this is required due to security updates or because the system
+isn't yet running the newest kernel, remove old Linux kernel and header
 packages and optionally remove 'auto-removable' system packages.
 
 If the given SSH alias matches a section in the 'unlock-remote-system'
@@ -47,8 +48,15 @@ from verboselogs import VerboseLogger
 
 # Modules included in our package.
 from debuntu_tools import start_interactive_shell
-from debuntu_tools.kernel_manager import REBOOT_REQUIRED_FILE, KernelPackageManager, CleanupError
+from debuntu_tools.kernel_manager import KernelPackageManager, CleanupError
 from debuntu_tools.remote_reboot import reboot_remote_system
+
+# Public identifiers that require documentation.
+__all__ = (
+    "logger",
+    "main",
+    "upgrade_remote_system",
+)
 
 # Initialize a logger for this module.
 logger = VerboseLogger(__name__)
@@ -129,21 +137,33 @@ def upgrade_remote_system(context):
     # Run 'apt-get clean'.
     logger.info("Cleaning up downloaded archives on %s ..", context)
     context.execute('apt-get', 'clean', sudo=True)
-    # Reboot if required due to security updates.
-    if context.exists(REBOOT_REQUIRED_FILE):
-        logger.info("Rebooting %s (required due to security updates).", context)
-        reboot_remote_system(context=context)
-    # Cleanup old kernel packages (after rebooting, so that we're running on the newest kernel).
-    manager = KernelPackageManager(
+    # Use debuntu-kernel-manager to detect when a reboot is required by package
+    # upgrades or because the system isn't running on the newest kernel yet.
+    kernel_manager = KernelPackageManager(
         apt_options=['--yes'],
         context=context,
     )
+    if kernel_manager.reboot_required:
+        reboot_helper(kernel_manager, "Rebooting %s because this is required by package upgrades ..")
+    elif not kernel_manager.running_newest_kernel:
+        reboot_helper(kernel_manager, "Rebooting %s because it's not yet running the newest kernel ..")
+    # Cleanup old kernel packages after rebooting, when we're
+    # most likely (average case) running on the newest kernel.
     try:
-        manager.cleanup_packages()
+        kernel_manager.cleanup_packages()
     except CleanupError as e:
         # Don't error out when multiple meta packages are installed.
         logger.warning(e)
-    # Prompt to remove packages that seem to no longer be needed.
+    # Interactively prompt to remove packages that seem to no longer be needed
+    # (but never assume this to be correct: the operator needs to confirm).
     logger.info("Removing 'auto-removable' system packages ..")
     context.execute('apt-get', 'autoremove', '--purge', sudo=True, tty=True)
     logger.info("Done!")
+
+
+def reboot_helper(manager, reason):
+    logger.info(reason, manager.context)
+    reboot_remote_system(context=manager.context)
+    # Make sure the cleanup_packages() method call that follows a reboot makes
+    # its decisions based on fresh data (as opposed to stale cached data).
+    manager.clear_cached_properties()
