@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: May 26, 2018
+# Last Change: June 23, 2019
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -34,7 +34,7 @@ Supported options:
     available versions on the following web page:
     https://github.com/nodesource/distributions/
 
-    Default: node_4.x
+    Default: node_10.x (active LTS)
 
   -s, --sources-file=FILENAME
 
@@ -167,8 +167,8 @@ class NodeInstaller(PropertyManager):
 
     @mutable_property
     def nodejs_version(self):
-        """The Node.js version to install (a string, defaults to ``node_4.x``)."""
-        return 'node_4.x'
+        """The Node.js version to install (a string, defaults to ``node_10.x``)."""
+        return 'node_10.x'
 
     @mutable_property
     def sources_file(self):
