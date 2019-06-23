@@ -11,6 +11,20 @@ to `semantic versioning`_.
 .. _Keep a Changelog: http://keepachangelog.com/
 .. _semantic versioning: http://semver.org/
 
+`Release 0.8`_ (2019-06-23)
+---------------------------
+
+- debuntu-nodejs-installer: Bump Node.js version to 10.x. This was triggered by
+  the build failure at https://travis-ci.org/xolox/python-npm-accel/jobs/549226950
+  which caused me to wonder why I had never bothered to update this default. So
+  here it is :-).
+
+- Bug fix for reboot-remote-system: Don't run ``lsblk`` on regular files.
+
+- Bug fix for reboot-remote-system: Ignore usernames in config check.
+
+.. _Release 0.8: https://github.com/xolox/python-debuntu-tools/compare/0.7...0.8
+
 `Release 0.7`_ (2019-04-10)
 ---------------------------
 
