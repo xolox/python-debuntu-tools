@@ -42,7 +42,7 @@ instructions ;-).
 Requirements
 ~~~~~~~~~~~~
 
-- Several Python packages are required by `debuntu-tools` but installation of
+- Several Python packages are required by debuntu-tools but installation of
   the Python package should automatically pull in those dependencies for you.
 
 - The ``debuntu-kernel-manager`` program expects to be running on a Debian or
