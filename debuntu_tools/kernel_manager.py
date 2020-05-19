@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: November 17, 2018
+# Last Change: May 20, 2020
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -444,8 +444,8 @@ class KernelPackageManager(PropertyManager):
         Run ``apt-get`` to cleanup removable kernel related packages.
 
         :param options: Any keyword arguments are passed on to the
-                        :func:`~executor.contexts.AbstractContext.execute()`
-                        method of the :class:`context` object.
+                        :meth:`~executor.contexts.AbstractContext.execute()`
+                        method of the :attr:`context` object.
         :returns: :data:`True` if a system reboot is required (to switch to the
                   newest installed kernel image or because security updates
                   have been installed), :data:`False` otherwise.

@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: April 10, 2019
+# Last Change: May 20, 2020
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -111,8 +111,8 @@ def upgrade_remote_system(context):
 
     This function performs the following system maintenance tasks:
 
-    1. The ``apt-get update`` command is run (using the Python API of the
-       ``apt-mirror-updater`` program, see :mod:`apt_mirror_updater`).
+    1. The ``apt-get update`` command is run (using the Python API
+       of the :pypi:`apt-mirror-updater` program).
     2. The ``apt-get dist-upgrade`` command is run [1]_.
     3. The ``apt-get clean`` command is run.
     4. If the file ``/var/run/reboot-required`` exists (indicating that a
