@@ -401,8 +401,8 @@ This software is licensed under the `MIT license`_.
 .. _peter@peterodding.com: peter@peterodding.com
 .. _post-boot: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.post_boot
 .. _pre-boot: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.pre_boot
-.. _PyPI: https://pypi.python.org/pypi/debuntu-tools
-.. _Read the Docs: https://debuntu-tools.readthedocs.org/en/latest/#api-documentation
+.. _PyPI: https://pypi.org/project/debuntu-tools
+.. _Read the Docs: https://debuntu-tools.readthedocs.io/en/latest/#api-documentation
 .. _retry-interval: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.retry_interval
 .. _scan-timeout: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.scan_timeout
 .. _ssh-proxy: https://debuntu-tools.readthedocs.io/en/latest/api.html#debuntu_tools.remote_unlock.EncryptedSystem.ssh_proxy
