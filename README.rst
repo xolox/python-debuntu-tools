@@ -19,9 +19,9 @@ Status
 Right now `debuntu-tools` is just an experiment and as such I'm not making any
 claims about or commitments towards usability, reliability or backwards
 compatibility. I guess we'll see how long it's going to take me to consider
-this more than an experiment :-). The programs in this package have been
+this more than an experiment 😊. The programs in this package have been
 manually tested on and are being used to manage headless Linux servers running
-Ubuntu 14.04 and 16.04.
+Ubuntu 16.04 and 18.04.
 
 Installation
 ------------
