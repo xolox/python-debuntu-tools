@@ -29,7 +29,7 @@ Installation
 The `debuntu-tools` package is available on PyPI_ which means installation
 should be as simple as:
 
-.. code-block:: sh
+.. code-block:: console
 
    $ pip install debuntu-tools
 
