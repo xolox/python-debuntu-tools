@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: October 24, 2018
+# Last Change: May 20, 2020
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -97,18 +97,11 @@ import coloredlogs
 from executor import ExternalCommandFailed, execute, quote
 from executor.contexts import LocalContext, RemoteContext
 from executor.ssh.client import RemoteConnectFailed, SSH_PROGRAM_NAME
-from humanfriendly import (
-    AutomaticSpinner,
-    Timer,
-    compact,
-    format,
-    format_timespan,
-    parse_path,
-    parse_timespan,
-    pluralize,
-)
+from humanfriendly import Timer, format_timespan, parse_path, parse_timespan
 from humanfriendly.prompts import prompt_for_confirmation
 from humanfriendly.terminal import connected_to_terminal, usage, warning
+from humanfriendly.text import compact, format, pluralize
+from humanfriendly.terminal.spinners import AutomaticSpinner
 from property_manager import (
     PropertyManager,
     key_property,
@@ -123,7 +116,7 @@ from verboselogs import VerboseLogger
 # Modules included in our package.
 from debuntu_tools import start_interactive_shell
 
-EXPRESSION_PATTERN = re.compile('''
+EXPRESSION_PATTERN = re.compile(r'''
     ^ ( (?P<user> [^@]+ ) @ )?
     (?P<host> .+? )
     ( : (?P<port> \d+ ) )? $

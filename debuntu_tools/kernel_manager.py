@@ -70,8 +70,10 @@ import coloredlogs
 from deb_pkg_tools.version import Version
 from executor import ExternalCommandFailed
 from executor.contexts import create_context
-from humanfriendly import AutomaticSpinner, Timer, compact, concatenate, pluralize
+from humanfriendly import Timer
 from humanfriendly.terminal import ansi_wrap, usage, warning
+from humanfriendly.terminal.spinners import AutomaticSpinner
+from humanfriendly.text import compact, concatenate, pluralize
 from property_manager import PropertyManager, cached_property, key_property, required_property
 from verboselogs import VerboseLogger
 

@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: April 11, 2019
+# Last Change: May 20, 2020
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -38,8 +38,9 @@ import time
 
 # External dependencies.
 import coloredlogs
-from humanfriendly import Timer, compact, format_timespan
+from humanfriendly import Timer, format_timespan
 from humanfriendly.terminal import usage, warning
+from humanfriendly.text import compact
 from executor.contexts import RemoteContext
 from executor.ssh.client import RemoteAccount, RemoteConnectFailed
 from linux_utils.crypttab import parse_crypttab
