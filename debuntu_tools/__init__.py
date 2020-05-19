@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: June 23, 2019
+# Last Change: May 20, 2020
 # URL: https://debuntu-tools.readthedocs.io
 
 """The top level :mod:`debuntu_tools` module."""
@@ -18,7 +18,7 @@ __all__ = (
 )
 
 # Semi-standard module versioning.
-__version__ = '0.8'
+__version__ = '0.9'
 """The global version number of the `debuntu-tools` package (a string)."""
 
 # Initialize a logger for this module.

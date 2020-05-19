@@ -11,6 +11,44 @@ to `semantic versioning`_.
 .. _Keep a Changelog: http://keepachangelog.com/
 .. _semantic versioning: http://semver.org/
 
+`Release 0.9`_ (2020-05-20)
+---------------------------
+
+**Noteworthy changes:**
+
+- Switch from :pypi:`requests` to :pypi:`six` (``six.moves.urllib.request``).
+
+  The ``debuntu-nodejs-installer`` program needs to make two HTTPS requests and
+  until now used :pypi:`requests` to do so. However :pypi:`requests` pulls in
+  quite a few dependencies (:pypi:`certifi`, :pypi:`chardet`, :pypi:`idna` and
+  :pypi:`urllib3`).
+
+  On older Python 2.7 releases :pypi:`requests` was needed to provide proper
+  TLS support including SNI, however with most of the world moving on to modern
+  Python releases the simple responsibility of making two HTTPS requests no
+  longer warrants five dependencies...
+
+  Besides, :pypi:`six` was already part of the transitive requirements and the
+  code changes required were minimal. I also got to remove most of the
+  complexity from ``setup.py``.
+
+- Make it possible to instruct the Python API of ``upgrade-remote-system`` to
+  perform a reboot regardless of whether this is required by package updates.
+
+- Updated the usage messages embedded in the readme.
+
+**Miscellaneous changes:**
+
+- Update Ubuntu releases mentioned in readme.
+- Update PyPI and RTD links in readme.
+- Use console highlighting in readme.
+- Refactored makefile (use Python 3 for local development, treat Sphinx
+  warnings as errors, etc).
+- Fixed existing Sphinx reference warnings.
+- Bumped requirements, fixed deprecated imports.
+
+.. _Release 0.9: https://github.com/xolox/python-debuntu-tools/compare/0.8...0.9
+
 `Release 0.8`_ (2019-06-23)
 ---------------------------
 
@@ -19,7 +57,7 @@ to `semantic versioning`_.
   which caused me to wonder why I had never bothered to update this default. So
   here it is :-).
 
-- Bug fix for reboot-remote-system: Don't run ``lsblk`` on regular files.
+- Bug fix for reboot-remote-system: Don't run :man:`lsblk` on regular files.
 
 - Bug fix for reboot-remote-system: Ignore usernames in config check.
 
@@ -89,7 +127,7 @@ restrictive ``connect-timeout`` using a configuration file.
 `Release 0.6.1`_ (2018-07-03)
 -----------------------------
 
-Bumped `linux-utils` requirement to pull in an upstream bug fix:
+Bumped :pypi:`linux-utils` requirement to pull in an upstream bug fix:
 
 - An exception was being raised by the ``upgrade-remote-system`` program (at
   the point where it calls into ``reboot-remote-system``) because the file
@@ -101,7 +139,7 @@ Bumped `linux-utils` requirement to pull in an upstream bug fix:
 
 - Furthermore this was in the code path responsible for figuring out whether a
   given system has any encrypted filesystems. Because "none" is definitely a
-  valid answer, I've changed `linux-utils` to log a notice that the file
+  valid answer, I've changed :pypi:`linux-utils` to log a notice that the file
   couldn't be found but not raise any exceptions.
 
 .. _Release 0.6.1: https://github.com/xolox/python-debuntu-tools/compare/0.6...0.6.1
@@ -111,7 +149,7 @@ Bumped `linux-utils` requirement to pull in an upstream bug fix:
 
 - Added ``upgrade-remote-system`` program.
 - Improved ``reboot-remote-system`` API (it's now possible to give a name to
-  ``reboot_remote_system()`` and leave it up to that function to get the
+  :func:`.reboot_remote_system()` and leave it up to that function to get the
   execution context from the configuration file).
 - Documentation about remote root disk encryption on Raspberry Pi.
 
@@ -125,9 +163,9 @@ Bumped `linux-utils` requirement to pull in an upstream bug fix:
 - Added `documentation about remote root disk encryption
   <https://debuntu-tools.readthedocs.io/en/latest/unlock-remote-system.html>`_.
 - Fixed a confusing typo in logging output of ``reboot-remote-system``.
-- Improved ``reboot_remote_system()`` API documentation.
+- Improved :func:`.reboot_remote_system()` API documentation.
 - Added this changelog, restructured the online documentation.
-- Integrated ``property_manager.sphinx`` in online documentation.
+- Integrated :mod:`property_manager.sphinx` in online documentation.
 - Added ``license='MIT'`` key to ``setup.py`` script.
 - Include documentation in source distributions.
 - Fixed broken reStructuredText reference in ``nodejs_installer.py``.
@@ -140,7 +178,7 @@ Bumped `linux-utils` requirement to pull in an upstream bug fix:
 
 - Bug fix for unlocking in ``reboot-remote-system``.
 - Set ``interactive=False`` for ``unlock-remote-system --watch --all``.
-- Cleanup ``debuntu_tools.remote_unlock.main()``.
+- Cleanup :func:`debuntu_tools.remote_unlock.main()`.
 
 .. _Release 0.4.1: https://github.com/xolox/python-debuntu-tools/compare/0.4...0.4.1
 
@@ -236,7 +274,7 @@ NodeSource binary repositories.
 `Release 0.1`_ (2016-06-15)
 ---------------------------
 
-The initial release of `debuntu-tools` contained only the program
+The initial release of :pypi:`debuntu-tools` contained only the program
 ``debuntu-kernel-manager``. Half the value for me in creating this program was
 getting to know how Debian and Ubuntu kernel image/header meta packages worked.
 My initial goal was to create a safer alternative to ``sudo apt-get autoremove
