@@ -46,7 +46,7 @@ readme: install
 	@pip install --quiet cogapp
 	@cog.py -r README.rst
 
-docs: install
+docs: readme
 	@pip install --quiet sphinx
 	@cd docs && sphinx-build -nWb html -d build/doctrees . build/html
 

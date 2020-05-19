@@ -89,9 +89,9 @@ debuntu-kernel-manager
 
 **Usage:** `debuntu-kernel-manager [OPTIONS] -- [APT_OPTIONS]`
 
-Detect and remove old Linux kernel header and image packages that can be safely
-removed to conserve disk space and speed up apt-get runs that install or remove
-kernels.
+Detect and remove old Linux kernel header, image and modules packages that can
+be safely removed to conserve disk space and speed up apt-get runs that install
+or remove kernels.
 
 By default old packages are detected and reported on the command line but no
 changes are made. To actually remove old packages you need to use the ``-c``,
@@ -168,7 +168,7 @@ a dozen times now. One thing led to another and now there is this program.
    available versions on the following web page:
    https://github.com/nodesource/distributions/
    
-   Default: node_4.x"
+   Default: node_10.x (active LTS)"
    "``-s``, ``--sources-file=FILENAME``","Set the pathname of the 'package resource list' that will be added to the
    system during configuration of the NodeSource binary package repository.
    
@@ -288,7 +288,8 @@ upgrade-remote-system
 **Usage:** `upgrade-remote-system [OPTIONS] [SSH_ALIAS]`
 
 Upgrade the system packages on a remote Debian or Ubuntu system, reboot the
-system if required due to security updates, remove old Linux kernel and header
+system when this is required due to security updates or because the system
+isn't yet running the newest kernel, remove old Linux kernel and header
 packages and optionally remove 'auto-removable' system packages.
 
 If the given SSH alias matches a section in the 'unlock-remote-system'
