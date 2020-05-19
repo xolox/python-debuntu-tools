@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: June 23, 2019
+# Last Change: May 20, 2020
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -64,18 +64,17 @@ Supported options:
 
 # Standard library modules.
 import getopt
-import logging
 import sys
 
 # External dependencies.
 import coloredlogs
-import requests
 from apt_mirror_updater import AptMirrorUpdater
 from executor import ExternalCommandFailed, quote
 from executor.contexts import create_context
 from humanfriendly.terminal import usage, warning
 from humanfriendly.text import compact, dedent, format
 from property_manager import PropertyManager, mutable_property, required_property
+from six.moves.urllib.request import urlopen
 from verboselogs import VerboseLogger
 
 # Initialize a logger for this module.
@@ -86,7 +85,6 @@ def main():
     """Command line interface for ``debuntu-nodejs-installer``."""
     # Initialize logging to the terminal and system log.
     coloredlogs.install(syslog=True)
-    silence_urllib_logger()
     # Parse the command line arguments.
     action = None
     context_opts = dict()
@@ -136,11 +134,6 @@ def main():
     except Exception:
         logger.exception("Encountered unexpected exception on %s!", context)
         sys.exit(1)
-
-
-def silence_urllib_logger():
-    """Silence useless ``INFO`` messages from the ``requests.packages.urllib3.connectionpool`` logger."""
-    logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.WARNING)
 
 
 class NodeInstaller(PropertyManager):
@@ -213,7 +206,9 @@ class NodeInstaller(PropertyManager):
             codename=self.context.distribution_codename,
         )
         logger.info("Validating repository availability (%s) ..", base_url)
-        if not requests.get(base_url).ok:
+        response = urlopen(base_url)
+        status_code = response.getcode()
+        if status_code != 200:
             raise UnsupportedSystemError(compact(
                 """
                 Based on the output of the 'lsb_release --codename' command
@@ -229,9 +224,11 @@ class NodeInstaller(PropertyManager):
     def install_signing_key(self, key_url='https://deb.nodesource.com/gpgkey/nodesource.gpg.key'):
         """Install the signing key for the NodeSource repositories."""
         logger.info("Downloading and installing NodeSource signing key (%s) ..", key_url)
-        response = requests.get(key_url, verify=True)
-        response.raise_for_status()
-        self.context.execute('apt-key', 'add', '-', input=response.text, sudo=True)
+        response = urlopen(key_url)
+        status_code = response.getcode()
+        if status_code != 200:
+            raise Exception("Failed to download NodeSource signing key! (%s)" % key_url)
+        self.context.execute('apt-key', 'add', '-', input=response.read(), sudo=True)
 
     def install_https_transport(self):
         """Install the ``apt-transport-https`` system package."""

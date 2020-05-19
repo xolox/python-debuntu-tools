@@ -5,6 +5,6 @@ executor >= 16.1
 humanfriendly >= 4.10
 linux-utils >= 0.6
 property-manager >= 2.3.1
-requests >= 2.11.1
 update-dotdee >= 5.0
+six >= 1.14.0
 verboselogs >= 1.7
