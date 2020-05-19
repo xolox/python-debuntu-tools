@@ -103,7 +103,7 @@ def main():
         sys.exit(2)
 
 
-def upgrade_remote_system(context):
+def upgrade_remote_system(context, force_reboot=False):
     """
     Perform standard system maintenance tasks on a remote Debian or Ubuntu system.
 
@@ -143,7 +143,9 @@ def upgrade_remote_system(context):
         apt_options=['--yes'],
         context=context,
     )
-    if kernel_manager.reboot_required:
+    if force_reboot:
+        reboot_helper(kernel_manager, "Rebooting %s as requested by operator ..")
+    elif kernel_manager.reboot_required:
         reboot_helper(kernel_manager, "Rebooting %s because this is required by package upgrades ..")
     elif not kernel_manager.running_newest_kernel:
         reboot_helper(kernel_manager, "Rebooting %s because it's not yet running the newest kernel ..")
