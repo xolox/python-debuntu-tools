@@ -11,6 +11,14 @@ to `semantic versioning`_.
 .. _Keep a Changelog: http://keepachangelog.com/
 .. _semantic versioning: http://semver.org/
 
+`Release 0.9.1`_ (2020-08-17)
+-----------------------------
+
+Speed up ``reboot-remote-system`` by opting out of OpenSSH connection
+multiplexing during reboot check.
+
+.. _Release 0.9.1: https://github.com/xolox/python-debuntu-tools/compare/0.9...0.9.1
+
 `Release 0.9`_ (2020-05-20)
 ---------------------------
 
