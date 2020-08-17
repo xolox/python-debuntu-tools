@@ -1,7 +1,7 @@
 # Debian and Ubuntu system administration tools.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: May 20, 2020
+# Last Change: August 17, 2020
 # URL: https://debuntu-tools.readthedocs.io
 
 """
@@ -151,6 +151,8 @@ def reboot_remote_system(context=None, name=None):
     # Issue the `reboot' command.
     try:
         context.execute('reboot', shell=False, silent=True, sudo=True)
+        # TODO Investigate how to pro-actively close the master
+        #      connection for multiplexed OpenSSH connections.
     except RemoteConnectFailed:
         logger.notice(compact("""
             While issuing the `reboot' command the SSH client reported dropping
@@ -184,17 +186,31 @@ def reboot_remote_system(context=None, name=None):
     logger.success("Took %s to reboot %s.", timer, context)
 
 
-def get_uptime(context):
+def get_uptime(context, multiplexed=False):
     """
-    Get the uptime of a remote system.
+    Get the uptime of a remote Linux system by reading ``/proc/uptime``.
 
     :param context: An execution context created by :mod:`executor.contexts`.
     :returns: The uptime of the remote system (as a :class:`float`).
 
     This function is used by :func:`reboot_remote_system()` to
-    wait until a remote system has been successfully rebooted.
+    wait until a remote Linux system has successfully rebooted.
+
+    The uptime check uses ``ssh -S none $REMOTE_HOST cat /proc/uptime`` where
+    ``-S none`` opts out of OpenSSH connection multiplexing, because in my
+    experience the master connection for multiplexed OpenSSH connections
+    handles remote reboots rather ungracefully (it can take a minute or two
+    before the client finally considers the master connection dead and
+    successfully establishes a fresh connection to the rebooted remote host).
+
+    Any output on the standard error stream is silenced because 99% of the time
+    this output will consist of SSH client connection errors due to the "retry
+    until success" approach taken by :func:`reboot_remote_system()`.
     """
-    contents = context.capture('cat', '/proc/uptime', silent=True)
+    options = dict(silent=True)
+    if not multiplexed:
+        options.update(ssh_command=['ssh', '-S', 'none'])
+    contents = context.capture('cat', '/proc/uptime', **options)
     return next(float(t) for t in contents.split())
 
 
